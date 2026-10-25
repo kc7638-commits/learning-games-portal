@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>數字寶藏島 - 二年級生活數學 1-200以內的數</title>
+  <style>
+    :root {
+      --primary: #3F51B5;
+      --primary-dark: #303F9F;
+      --secondary: #009688;
+      --secondary-dark: #00796B;
+      --accent: #FF9800;
+      --bg: #E8F5E9;
+      --panel-bg: #FFFFFF;
+      --text: #263238;
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+      --border-r: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+      font-family: 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    /* 頂部狀態列 */
+    header {
+      width: 100%;
+      max-width: 920px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .title-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #2E7D32;
+    }
+
+    .title-area .icon {
+      font-size: 32px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .stat-badge {
+      background: #E8F5E9;
+      color: #2E7D32;
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 2px solid #C8E6C9;
+    }
+
+    /* 模式切換 */
+    .mode-selector {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mode-btn {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 900;
+      border: 3px solid transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: white;
+      color: #546E7A;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn .sub-text {
+      font-size: 13px;
+      font-weight: normal;
+      color: #78909C;
+    }
+
+    .mode-btn.active-basic {
+      border-color: #2E7D32;
+      background: #E8F5E9;
+      color: #1B5E20;
+    }
+
+    .mode-btn.active-basic .sub-text {
+      color: #2E7D32;
+      font-weight: bold;
+    }
+
+    .mode-btn.active-adv {
+      border-color: #E65100;
+      background: #FFF3E0;
+      color: #BF360C;
+    }
+
+    .mode-btn.active-adv .sub-text {
+      color: #E65100;
+      font-weight: bold;
+    }
+
+    /* 進度條 */
+    .progress-bar-container {
+      width: 100%;
+      max-width: 920px;
+      background: #E0E0E0;
+      border-radius: 12px;
+      height: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #FF9800);
+      width: 6.66%;
+      transition: width 0.3s ease;
+    }
+
+    /* 遊戲主容器 */
+    .game-container {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .game-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel-bg);
+      border-radius: var(--border-r);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* 關卡故事情境卡 */
+    .stage-tag {
+      align-self: flex-start;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .tag-basic { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+    .tag-adv { background: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
+
+    .story-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #E8F5E9;
+      border-radius: 16px;
+      padding: 12px;
+      border: 2px dashed #A5D6A7;
+      margin-bottom: 14px;
+    }
+
+    .avatar {
+      font-size: 50px;
+      animation: float 2.5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .speech-bubble {
+      background: white;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 15px;
+      color: #2E7D32;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .target-mission-card {
+      background: #FAFAFA;
+      border: 2px solid #ECEFF1;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .target-title {
+      font-size: 16px;
+      color: #546E7A;
+      font-weight: bold;
+    }
+
+    .target-question {
+      font-size: 20px;
+      font-weight: 900;
+      color: #1B5E20;
+      line-height: 1.4;
+    }
+
+    .help-btn {
+      background: #E8F5E9;
+      color: #2E7D32;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+      align-self: flex-start;
+      transition: all 0.2s;
+    }
+
+    .help-btn:hover {
+      background: #C8E6C9;
+    }
+
+    .math-help-box {
+      margin-top: 10px;
+      background: #FFF9C4;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #795548;
+      display: none;
+      border-left: 5px solid #FBC02D;
+      line-height: 1.5;
+    }
+
+    /* 右側積木與定位板舞台 */
+    .visual-stage {
+      background: #FAFAFA;
+      border: 2px dashed #B0BEC5;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+      margin-bottom: 14px;
+    }
+
+    /* 百數積木與錢幣圖卡 */
+    .blocks-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .block-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .block-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #546E7A;
+    }
+
+    .block-items {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 180px;
+    }
+
+    /* 百格大積木 (100) */
+    .hundred-flat {
+      width: 60px;
+      height: 60px;
+      background: #FFE082;
+      border: 2px solid #FFA000;
+      border-radius: 4px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 1px;
+      padding: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .hundred-flat div {
+      background: #FFD54F;
+      border-radius: 1px;
+    }
+
+    /* 十條積木 (10) */
+    .ten-rod {
+      width: 12px;
+      height: 58px;
+      background: #81C784;
+      border: 1.5px solid #388E3C;
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1px 0;
+    }
+
+    .ten-rod div {
+      height: 4px;
+      background: #4CAF50;
+      border-radius: 1px;
+    }
+
+    /* 顆單個積木 (1) */
+    .one-cube {
+      width: 12px;
+      height: 12px;
+      background: #FF8A80;
+      border: 1.5px solid #D50000;
+      border-radius: 2px;
+    }
+
+    /* 4 個互動選項卡 */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .opt-btn {
+      background: white;
+      border: 2px solid #CFD8DC;
+      border-radius: 14px;
+      padding: 14px 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #37474F;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      text-align: center;
+    }
+
+    .opt-btn:hover {
+      border-color: #2E7D32;
+      background: #E8F5E9;
+      color: #1B5E20;
+    }
+
+    .opt-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* 彈窗 Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: white;
+      padding: 30px 24px;
+      border-radius: 26px;
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+      animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalPop {
+      0% { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-icon {
+      font-size: 58px;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #263238;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 17px;
+      color: #546E7A;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .btn-next {
+      background: #2E7D32;
+      color: white;
+      width: 100%;
+      padding: 14px;
+      font-size: 19px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+    }
+
+    .btn-next:hover {
+      background: #1B5E20;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部資訊列 -->
+  <header>
+    <div class="title-area">
+      <span class="icon">🧭</span>
+      <span>數字寶藏島 (1-200以內的數)</span>
+    </div>
+    <div class="stats">
+      <div class="stat-badge">⭐ 寶石: <span id="scoreText">0</span></div>
+      <div class="stat-badge">🎯 關卡: <span id="levelText">1 / 15</span></div>
+    </div>
+  </header>
+
+  <!-- 模式切換按鈕區 -->
+  <div class="mode-selector">
+    <button class="mode-btn active-basic" id="btnModeBasic" onclick="switchMode('basic')">
+      <span>🌱 基礎模式：認識百位與積木位值 (全15題)</span>
+      <span class="sub-text">100~200的數法、百位/十位/個位定位板、讀作與寫作</span>
+    </button>
+    <button class="mode-btn" id="btnModeAdv" onclick="switchMode('adv')">
+      <span>🚀 進階模式：數列規律、比大小與生活換算 (全15題)</span>
+      <span class="sub-text">跳數規則 (2/5/10跳數)、＞＜符號比較、百元錢幣換算</span>
+    </button>
+  </div>
+
+  <!-- 進度條 -->
+  <div class="progress-bar-container">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- 遊戲主體 -->
+  <main class="game-container">
+    
+    <!-- 左側：探險任務卡 -->
+    <section class="card">
+      <div class="stage-tag tag-basic" id="stageTag">基礎模式</div>
+
+      <div class="story-card">
+        <div class="avatar" id="avatarIcon">🦜</div>
+        <div class="speech-bubble" id="storySpeech">歡迎來到數字寶藏島！解開 1-200 的位值密碼，就能找到金色寶藏！</div>
+      </div>
+
+      <div class="target-mission-card">
+        <div class="target-title">📋 寶藏位值密碼：</div>
+        <div class="target-question" id="targetQuestion">請看右圖積木，總共是多少呢？</div>
+        <div style="font-size: 15px; color: #546E7A; line-height: 1.5; margin-top: 4px;" id="scenarioDesc">
+          數一數有幾個百、幾個十和幾個一。
+        </div>
+
+        <button class="help-btn" onclick="toggleHelp()">💡 看探險家解碼提示</button>
+        <div class="math-help-box" id="helpBox">
+          <strong>位值小口訣：</strong><br>
+          <span id="helpContent">1個百是100，幾個十就是幾十，幾個一就是幾！注意中間有0時要讀作「零」喔！</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右側：積木與位值視覺舞台與答題選項 -->
+    <section class="card">
+      <div class="visual-stage" id="visualStage"></div>
+
+      <!-- 四個作答選項按鈕 -->
+      <div class="options-grid" id="optionsContainer"></div>
+    </section>
+
+  </main>
+
+  <!-- 彈窗回饋 Modal -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="modal-card">
+      <div class="modal-icon" id="modalIcon">🎉</div>
+      <div class="modal-title" id="modalTitle">解碼完全正確！</div>
+      <div class="modal-desc" id="modalDesc">你精確掌握了 1-200 的數字位值概念！獲得 10 顆寶石！</div>
+      <button class="btn-next" id="modalBtn" onclick="nextQuestion()">前往下一個寶藏點 ➡️</button>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'basic'; // 'basic' 或 'adv'
+    let score = 0;
+    let currentLevel = 1;
+    const totalLevels = 15;
+
+    // 【題庫一】基礎模式（15題）：100以內的數拓展至 200、百位/十位/個位積木、讀寫法與位值
+    const basicQuestions = [
+      {
+        q: "看右圖積木，有 1 個百、3 個十和 5 個一，合起來是多少？",
+        desc: "數一數黃色百格板、綠色十條和紅色單個積木。",
+        avatar: "🦜",
+        type: "blocks",
+        h: 1, t: 3, o: 5,
+        options: ["135", "153", "35", "130"],
+        ans: "135",
+        tip: "1個百是100，3個十是30，5個一是5，合起來是 100 + 30 + 5 = 135！"
+      },
+      {
+        q: "看右圖積木，有 1 個百和 6 個一（十位沒有積木），合起來是多少？",
+        desc: "注意！十位沒有積木要用 0 佔位喔！",
+        avatar: "🐒",
+        type: "blocks",
+        h: 1, t: 0, o: 6,
+        options: ["106", "160", "16", "1006"],
+        ans: "106",
+        tip: "百位是 1，十位沒有要寫 0，個位是 6，合起來是 106！"
+      },
+      {
+        q: "數字「108」應該怎麼讀？",
+        desc: "十位是 0 時的國字讀法。",
+        avatar: "🐰",
+        type: "text_read",
+        number: 108,
+        options: ["一百零八", "一百八十", "一八", "一百八"],
+        ans: "一百零八",
+        tip: "中間的 0 要讀作「零」，所以讀作「一百零八」！"
+      },
+      {
+        q: "數字「一百四十」寫成阿拉伯數字是哪一個？",
+        desc: "國字轉阿拉伯數字練習。",
+        avatar: "🐱",
+        type: "text_write",
+        options: ["140", "104", "14", "1400"],
+        ans: "140",
+        tip: "一百是百位寫1，四十是十位寫4，個位是0，寫作 140。"
+      },
+      {
+        q: "看右圖，有 1 個百、7 個十和 2 個一，合起來是多少？",
+        desc: "大積木盤點任務。",
+        avatar: "🐻",
+        type: "blocks",
+        h: 1, t: 7, o: 2,
+        options: ["172", "127", "72", "170"],
+        ans: "172",
+        tip: "100 + 70 + 2 = 172！"
+      },
+      {
+        q: "在數字「168」中，百位數字是 1，十位數字是幾？",
+        desc: "定位板上的位值結構辨識。",
+        avatar: "🦊",
+        type: "place_val",
+        number: 168,
+        options: ["6 (代表60)", "8 (代表8)", "1 (代表100)", "16"],
+        ans: "6 (代表60)",
+        tip: "168 中，百位是 1、十位是 6（代表60）、個位是 8！"
+      },
+      {
+        q: "看右圖，有 2 個百（2塊大黃板），總共是多少？",
+        desc: "認識 200 的里程碑！",
+        avatar: "🦁",
+        type: "blocks",
+        h: 2, t: 0, o: 0,
+        options: ["200", "100", "20", "2000"],
+        ans: "200",
+        tip: "1個百是100，2個百就是 200！"
+      },
+      {
+        q: "數字「199」再多加「1」，會變成多少？",
+        desc: "連續進位到 200 的重要關鍵題！",
+        avatar: "🦉",
+        type: "plus_one",
+        options: ["200", "190", "100", "210"],
+        ans: "200",
+        tip: "199 的下一個數就是 200！"
+      },
+      {
+        q: "看右圖積木，有 1 個百、9 個十和 0 個一，總數是多少？",
+        desc: "整十數的積木模型。",
+        avatar: "🐶",
+        type: "blocks",
+        h: 1, t: 9, o: 0,
+        options: ["190", "109", "19", "200"],
+        ans: "190",
+        tip: "1個百是100，9個十是90，100 + 90 = 190！"
+      },
+      {
+        q: "數字「150」是由幾個十合起來的？",
+        desc: "十與百的進階十進位互換。",
+        avatar: "🐿️",
+        type: "tens_count",
+        options: ["15 個十", "5 個十", "50 個十", "1 個十"],
+        ans: "15 個十",
+        tip: "100 是 10 個十，再加 5 個十，總共是 15 個十！"
+      },
+      {
+        q: "看右圖積木，有 1 個百、1 個十和 1 個一，合起來是多少？",
+        desc: "三位數全部都是1的特殊數。",
+        avatar: "🐼",
+        type: "blocks",
+        h: 1, t: 1, o: 1,
+        options: ["111", "101", "110", "3"],
+        ans: "111",
+        tip: "100 + 10 + 1 = 111 (讀作一百一十一)！"
+      },
+      {
+        q: "1張100元鈔票，可以換成幾枚「10元」硬幣？",
+        desc: "生活錢幣與百位等值換算。",
+        avatar: "🏪",
+        type: "money_swap",
+        options: ["10 枚", "100 枚", "5 枚", "20 枚"],
+        ans: "10 枚",
+        tip: "10個10元就是100元，所以可以換成 10 枚 10元硬幣！"
+      },
+      {
+        q: "在數字「147」中，個位的「7」代表多少？",
+        desc: "個位數的實際數值意義。",
+        avatar: "🦔",
+        type: "place_val",
+        number: 147,
+        options: ["7 (7個一)", "70 (7個十)", "700 (7個百)", "14"],
+        ans: "7 (7個一)",
+        tip: "在個位上的數字，代表有幾個 1，所以 7 代表 7！"
+      },
+      {
+        q: "從 118 開始往後數：「118、119、( ? )」，括號裡是多少？",
+        desc: "跨整十數連續跳數。",
+        avatar: "🐸",
+        type: "count_up",
+        options: ["120", "130", "110", "121"],
+        ans: "120",
+        tip: "119 再往後數一個就是 120！"
+      },
+      {
+        q: "壓軸挑戰：數字「一百零五」寫成阿拉伯數字是？",
+        desc: "基礎模式零佔位壓軸題。",
+        avatar: "🏆",
+        type: "text_write",
+        options: ["105", "150", "15", "1005"],
+        ans: "105",
+        tip: "百位寫1，十位沒有寫0，個位寫5，記作 105！"
+      }
+    ];
+
+    // 【題庫二】進階模式（15題）：數列規律 (跳數2/5/10)、1-200 比大小(＞、＜、＝)、前後相鄰數
+    const advQuestions = [
+      {
+        q: "找規律填空格：110、120、130、( ? )、150",
+        desc: "每次「加 10」的一十跳數規律。",
+        avatar: "🚂",
+        type: "pattern",
+        seq: "110, 120, 130, [ ? ], 150",
+        options: ["140", "135", "160", "145"],
+        ans: "140",
+        tip: "每次都多 10（十位的數字加1）：130 + 10 = 140！"
+      },
+      {
+        q: "比大小：請在 158 和 162 之間填入正確符號：158 ( ? ) 162",
+        desc: "三位數大小比較：先看百位，再看十位。",
+        avatar: "⚖️",
+        type: "compare",
+        numA: 158, numB: 162,
+        options: ["＜ (小於)", "＞ (大於)", "＝ (等於)", "無法比較"],
+        ans: "＜ (小於)",
+        tip: "百位都是1，看十位：5 比 6 小，所以 158 ＜ 162！"
+      },
+      {
+        q: "找規律填空格：145、150、155、( ? )、165",
+        desc: "每次「加 5」的五個跳數規律。",
+        avatar: "🐇",
+        type: "pattern",
+        seq: "145, 150, 155, [ ? ], 165",
+        options: ["160", "156", "170", "158"],
+        ans: "160",
+        tip: "每次增加 5：155 + 5 = 160！"
+      },
+      {
+        q: "比大小：請選出正確的符號：180 ( ? ) 108",
+        desc: "十位與個位顛倒的經典易錯題！",
+        avatar: "🦊",
+        type: "compare",
+        numA: 180, numB: 108,
+        options: ["＞ (大於)", "＜ (小於)", "＝ (等於)", "一樣大"],
+        ans: "＞ (大於)",
+        tip: "180 的十位是 8，108 的十位是 0，8 比 0 大，所以 180 ＞ 108！"
+      },
+      {
+        q: "找規律填空格：192、194、196、198、( ? )",
+        desc: "每次「加 2」的偶數跳數，直達 200！",
+        avatar: "🏃",
+        type: "pattern",
+        seq: "192, 194, 196, 198, [ ? ]",
+        options: ["200", "199", "202", "190"],
+        ans: "200",
+        tip: "每次加 2：198 + 2 = 200！"
+      },
+      {
+        q: "哪一個數字「比 165 大，而且比 170 小」？",
+        desc: "介於兩數之間的範圍判斷。",
+        avatar: "🎯",
+        type: "range",
+        options: ["168", "165", "172", "160"],
+        ans: "168",
+        tip: "在 165 到 170 之間的數字有：166、167、168、169，所以選 168！"
+      },
+      {
+        q: "比大小：請選出正確關係：199 ( ? ) 200",
+        desc: "接近 200 的連續數比較。",
+        avatar: "🐨",
+        type: "compare",
+        numA: 199, numB: 200,
+        options: ["＜ (小於)", "＞ (大於)", "＝ (等於)", "以上皆非"],
+        ans: "＜ (小於)",
+        tip: "199 比 200 少 1，所以 199 ＜ 200！"
+      },
+      {
+        q: "小熊有1張100元和8枚10元，小兔有18枚10元，誰的錢比較多？",
+        desc: "生活錢幣等值換算比較。",
+        avatar: "💰",
+        type: "money_compare",
+        options: ["兩人一樣多 (都是180元)", "小熊比較多", "小兔比較多", "不能比較"],
+        ans: "兩人一樣多 (都是180元)",
+        tip: "小熊：100 + 80 = 180元；小兔：18個10元也是180元！兩人一樣多！"
+      },
+      {
+        q: "倒數跳數：180、170、160、( ? )、140",
+        desc: "每次「減 10」的倒數規律。",
+        avatar: "📉",
+        type: "pattern",
+        seq: "180, 170, 160, [ ? ], 140",
+        options: ["150", "155", "165", "130"],
+        ans: "150",
+        tip: "每次少 10：160 - 10 = 150！"
+      },
+      {
+        q: "數字「139」和「141」正中間的那一個數是多少？",
+        desc: "相鄰兩數的中間數。",
+        avatar: "⚖️",
+        type: "middle_num",
+        options: ["140", "138", "142", "150"],
+        ans: "140",
+        tip: "139 的下一個數、141 的前一個數，就是 140！"
+      },
+      {
+        q: "將 132、123、130 三個數字從「小到大」排列，正確順序是？",
+        desc: "三位數多數排序。",
+        avatar: "📶",
+        type: "sort",
+        options: ["123 ＜ 130 ＜ 132", "132 ＜ 130 ＜ 123", "130 ＜ 123 ＜ 132", "123 ＜ 132 ＜ 130"],
+        ans: "123 ＜ 130 ＜ 132",
+        tip: "先比十位最小的 123，再比 130 與 132，順序為 123 ＜ 130 ＜ 132！"
+      },
+      {
+        q: "找規律填空格：120、125、130、( ? )、140",
+        desc: "5個一數的數列推進。",
+        avatar: "🐸",
+        type: "pattern",
+        seq: "120, 125, 130, [ ? ], 140",
+        options: ["135", "132", "138", "131"],
+        ans: "135",
+        tip: "每次多 5：130 + 5 = 135！"
+      },
+      {
+        q: "哪一個算式的結果「剛好等於 200」？",
+        desc: "整百數的組合加法。",
+        avatar: "🌟",
+        type: "math_reach",
+        options: ["150 + 50", "180 + 10", "190 + 20", "100 + 90"],
+        ans: "150 + 50",
+        tip: "150 + 50 = 200！"
+      },
+      {
+        q: "比大小：請選出正確符號：100 + 70 + 9 ( ? ) 180",
+        desc: "位值展開式與整數比較。",
+        avatar: "🧮",
+        type: "compare",
+        numA: 179, numB: 180,
+        options: ["＜ (小於)", "＞ (大於)", "＝ (等於)", "以上皆非"],
+        ans: "＜ (小於)",
+        tip: "左邊算出來是 179，右邊是 180，179 ＜ 180！"
+      },
+      {
+        q: "大師級壓軸：由數字卡「1、0、8」排出的最大三位數是多少？",
+        desc: "三位數最大組合思維挑戰。",
+        avatar: "👑",
+        type: "card_arrange",
+        options: ["810", "180", "801", "108"],
+        ans: "810",
+        tip: "要想數字最大，百位放最大的8，十位放1，個位放0，所以是 810！"
+      }
+    ];
+
+    let currentQ = {};
+
+    // Web Audio API
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playTone(freq, type = 'sine', duration = 0.15) {
+      try {
+        if (!audioCtx) audioCtx = new AudioCtx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function soundSuccess() {
+      playTone(523, 'triangle', 0.1);
+      setTimeout(() => playTone(659, 'triangle', 0.1), 100);
+      setTimeout(() => playTone(783, 'triangle', 0.1), 200);
+      setTimeout(() => playTone(1046, 'triangle', 0.25), 300);
+    }
+
+    function soundError() {
+      playTone(260, 'sawtooth', 0.2);
+    }
+
+    function soundFanfare() {
+      const notes = [523, 659, 784, 1046, 784, 1046];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => playTone(freq, 'triangle', 0.2), idx * 150);
+      });
+    }
+
+    // 模式切換
+    function switchMode(mode) {
+      currentMode = mode;
+      currentLevel = 1;
+      score = 0;
+
+      const btnBasic = document.getElementById('btnModeBasic');
+      const btnAdv = document.getElementById('btnModeAdv');
+
+      if (mode === 'basic') {
+        btnBasic.className = 'mode-btn active-basic';
+        btnAdv.className = 'mode-btn';
+        document.getElementById('stageTag').className = 'stage-tag tag-basic';
+      } else {
+        btnBasic.className = 'mode-btn';
+        btnAdv.className = 'mode-btn active-adv';
+        document.getElementById('stageTag').className = 'stage-tag tag-adv';
+      }
+
+      loadQuestion();
+    }
+
+    function updateHeader() {
+      document.getElementById('scoreText').innerText = score;
+      document.getElementById('levelText').innerText = `${currentLevel} / ${totalLevels}`;
+      const percent = (currentLevel / totalLevels) * 100;
+      document.getElementById('progressFill').style.width = `${percent}%`;
+    }
+
+    // 渲染右側視覺舞台（積木、數列卡或比較符號）
+    function renderVisualStage(q) {
+      const container = document.getElementById('visualStage');
+      container.innerHTML = '';
+
+      if (q.type === 'blocks') {
+        const blocksDiv = document.createElement('div');
+        blocksDiv.className = 'blocks-container';
+
+        // 百位大積木
+        if (q.h > 0) {
+          const gH = document.createElement('div');
+          gH.className = 'block-group';
+          gH.innerHTML = `<span class="block-label">百位 (100)</span><div class="block-items" id="hItems"></div>`;
+          const items = gH.querySelector('#hItems');
+          for (let i = 0; i < q.h; i++) {
+            const hBlock = document.createElement('div');
+            hBlock.className = 'hundred-flat';
+            for (let c = 0; c < 25; c++) hBlock.appendChild(document.createElement('div'));
+            items.appendChild(hBlock);
+          }
+          blocksDiv.appendChild(gH);
+        }
+
+        // 十位長條積木
+        if (q.t > 0) {
+          const gT = document.createElement('div');
+          gT.className = 'block-group';
+          gT.innerHTML = `<span class="block-label">十位 (10)</span><div class="block-items" id="tItems"></div>`;
+          const items = gT.querySelector('#tItems');
+          for (let i = 0; i < q.t; i++) {
+            const tRod = document.createElement('div');
+            tRod.className = 'ten-rod';
+            for (let c = 0; c < 5; c++) tRod.appendChild(document.createElement('div'));
+            items.appendChild(tRod);
+          }
+          blocksDiv.appendChild(gT);
+        }
+
+        // 個位小立方積木
+        if (q.o > 0) {
+          const gO = document.createElement('div');
+          gO.className = 'block-group';
+          gO.innerHTML = `<span class="block-label">個位 (1)</span><div class="block-items" id="oItems"></div>`;
+          const items = gO.querySelector('#oItems');
+          for (let i = 0; i < q.o; i++) {
+            const oCube = document.createElement('div');
+            oCube.className = 'one-cube';
+            items.appendChild(oCube);
+          }
+          blocksDiv.appendChild(gO);
+        }
+
+        container.appendChild(blocksDiv);
+      } else if (q.type === 'pattern') {
+        const seqDiv = document.createElement('div');
+        seqDiv.style.textAlign = 'center';
+        seqDiv.innerHTML = `
+          <div style="font-size: 14px; color: #546E7A; font-weight: bold; margin-bottom: 8px;">數列跳數規律</div>
+          <div style="font-size: 22px; font-weight: 900; color: #1B5E20; background: white; padding: 12px 20px; border-radius: 16px; border: 2px dashed #81C784; letter-spacing: 2px;">
+            ${q.seq}
+          </div>
+        `;
+        container.appendChild(seqDiv);
+      } else if (q.type === 'compare') {
+        const cmpDiv = document.createElement('div');
+        cmpDiv.style.textAlign = 'center';
+        cmpDiv.innerHTML = `
+          <div style="font-size: 14px; color: #546E7A; font-weight: bold; margin-bottom: 8px;">三位數大小比較</div>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 26px; font-weight: 900;">
+            <span style="background: #E8F5E9; padding: 8px 16px; border-radius: 12px; color: #2E7D32;">${q.numA}</span>
+            <span style="color: #FF8F00;">❓</span>
+            <span style="background: #FFF3E0; padding: 8px 16px; border-radius: 12px; color: #E65100;">${q.numB}</span>
+          </div>
+        `;
+        container.appendChild(cmpDiv);
+      } else {
+        // 定位板或通識大卡
+        const boardDiv = document.createElement('div');
+        boardDiv.style.textAlign = 'center';
+        boardDiv.innerHTML = `
+          <div style="font-size: 48px; margin-bottom: 6px;">🧭</div>
+          <div style="font-size: 18px; font-weight: 900; color: #2E7D32; background: white; padding: 10px 18px; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+            百位 (百) ｜ 十位 (十) ｜ 個位 (一)
+          </div>
+        `;
+        container.appendChild(boardDiv);
+      }
+    }
+
+    // 載入題目
+    function loadQuestion() {
+      const bank = currentMode === 'basic' ? basicQuestions : advQuestions;
+      currentQ = bank[currentLevel - 1];
+
+      document.getElementById('stageTag').innerText = `${currentMode === 'basic' ? '🌱 基礎模式' : '🚀 進階模式'} - 第 ${currentLevel} 題`;
+      document.getElementById('avatarIcon').innerText = currentQ.avatar;
+      document.getElementById('targetQuestion').innerText = currentQ.q;
+      document.getElementById('scenarioDesc').innerText = currentQ.desc;
+      document.getElementById('storySpeech').innerText = `探險家請思考：${currentQ.q}`;
+
+      document.getElementById('helpContent').innerHTML = `💡 解碼秘訣：${currentQ.tip}`;
+      document.getElementById('helpBox').style.display = 'none';
+
+      renderVisualStage(currentQ);
+      renderOptions(currentQ);
+      updateHeader();
+    }
+
+    function toggleHelp() {
+      const box = document.getElementById('helpBox');
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // 渲染選項按鈕
+    function renderOptions(q) {
+      const optContainer = document.getElementById('optionsContainer');
+      optContainer.innerHTML = '';
+
+      q.options.forEach(optText => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerText = optText;
+        btn.onclick = () => selectOption(optText);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    // 選擇答案
+    function selectOption(selected) {
+      const isCorrect = (selected === currentQ.ans);
+      const modal = document.getElementById('feedbackModal');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const desc = document.getElementById('modalDesc');
+      const btn = document.getElementById('modalBtn');
+
+      if (isCorrect) {
+        score += 10;
+        updateHeader();
+
+        if (currentLevel >= totalLevels) {
+          soundFanfare();
+          const modeName = currentMode === 'basic' ? '基礎百位位值與讀寫' : '進階數列規律與比大小';
+          icon.innerText = "🏆 數字寶藏島終極領航員！";
+          title.innerText = `恭喜完成【${modeName}】全 15 關！`;
+          title.style.color = "#2E7D32";
+          desc.innerHTML = `太不可思議了！你解開了 1-200 數字寶藏島的所有密碼！<br>獲得總分 <strong>${score} / 150</strong> 顆寶石！<br>現在你已經是低年級百位數與位值計算高手了！`;
+
+          if (currentMode === 'basic') {
+            btn.innerText = "挑戰【進階數列規律與比大小】15關 🚀";
+            btn.onclick = () => {
+              modal.style.display = 'none';
+              switchMode('adv');
+            };
+          } else {
+            btn.innerText = "再挑戰一次 🔄";
+            btn.onclick = () => {
+              modal.style.display = 'none';
+              currentLevel = 1;
+              score = 0;
+              loadQuestion();
+            };
+          }
+        } else {
+          soundSuccess();
+          icon.innerText = "🌟 答對了！位值密碼完全吻合！";
+          title.innerText = `正確答案：${currentQ.ans}！`;
+          title.style.color = "#2E7D32";
+          desc.innerText = `小夥伴為你歡呼：「百位、十位、個位算得好清楚！」獲得 10 顆探險寶石！`;
+          btn.innerText = `前往第 ${currentLevel + 1} 關 ➡️`;
+          btn.onclick = () => {
+            modal.style.display = 'none';
+            currentLevel++;
+            loadQuestion();
+          };
+        }
+      } else {
+        soundError();
+        icon.innerText = "🤔 密碼好像不太對喔！";
+        title.innerText = "再仔細檢查一下位值吧！";
+        title.style.color = "#D84315";
+        desc.innerHTML = `你選擇了「${selected}」。<br>特別注意：十位若沒有積木要寫「0」佔位；百位是1代表100喔！<br>快打開「💡 看探險家解碼提示」再想一想吧！`;
+        btn.innerText = "我再算一次 ↩️";
+        btn.onclick = () => {
+          modal.style.display = 'none';
+        };
+      }
+
+      modal.style.display = 'flex';
+    }
+
+    window.onload = () => {
+      loadQuestion();
+    };
+  </script>
+</body>
+</html>

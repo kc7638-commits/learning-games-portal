@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>點心烘焙派對 - 二年級生活數學小小甜點師</title>
+  <style>
+    :root {
+      --primary: #EC407A;
+      --primary-dark: #C2185B;
+      --secondary: #AB47BC;
+      --secondary-dark: #7B1FA2;
+      --accent: #FFA726;
+      --bg: #FFF3E0;
+      --panel-bg: #FFFFFF;
+      --text: #3E2723;
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+      --border-r: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+      font-family: 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    /* 頂部狀態列 */
+    header {
+      width: 100%;
+      max-width: 920px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .title-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #D81B60;
+    }
+
+    .title-area .icon {
+      font-size: 32px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .stat-badge {
+      background: #FCE4EC;
+      color: #C2185B;
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 2px solid #F8BBD0;
+    }
+
+    /* 模式切換 */
+    .mode-selector {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mode-btn {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 900;
+      border: 3px solid transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: white;
+      color: #546E7A;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn .sub-text {
+      font-size: 13px;
+      font-weight: normal;
+      color: #78909C;
+    }
+
+    .mode-btn.active-basic {
+      border-color: #EC407A;
+      background: #FCE4EC;
+      color: #AD1457;
+    }
+
+    .mode-btn.active-basic .sub-text {
+      color: #D81B60;
+      font-weight: bold;
+    }
+
+    .mode-btn.active-adv {
+      border-color: #AB47BC;
+      background: #F3E5F5;
+      color: #6A1B9A;
+    }
+
+    .mode-btn.active-adv .sub-text {
+      color: #8E24AA;
+      font-weight: bold;
+    }
+
+    /* 進度條 */
+    .progress-bar-container {
+      width: 100%;
+      max-width: 920px;
+      background: #E0E0E0;
+      border-radius: 12px;
+      height: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #EC407A, #FFA726);
+      width: 6.66%;
+      transition: width 0.3s ease;
+    }
+
+    /* 遊戲主容器 */
+    .game-container {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .game-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel-bg);
+      border-radius: var(--border-r);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* 關卡故事情境卡 */
+    .stage-tag {
+      align-self: flex-start;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .tag-basic { background: #FCE4EC; color: #AD1457; border: 1px solid #F8BBD0; }
+    .tag-adv { background: #F3E5F5; color: #6A1B9A; border: 1px solid #E1BEE7; }
+
+    .story-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #FFF8E1;
+      border-radius: 16px;
+      padding: 12px;
+      border: 2px dashed #FFE082;
+      margin-bottom: 14px;
+    }
+
+    .avatar {
+      font-size: 50px;
+      animation: float 2.5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .speech-bubble {
+      background: white;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 15px;
+      color: #E65100;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .target-mission-card {
+      background: #FAFAFA;
+      border: 2px solid #ECEFF1;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .target-title {
+      font-size: 16px;
+      color: #546E7A;
+      font-weight: bold;
+    }
+
+    .target-question {
+      font-size: 20px;
+      font-weight: 900;
+      color: #C2185B;
+      line-height: 1.4;
+    }
+
+    .help-btn {
+      background: #FCE4EC;
+      color: #C2185B;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+      align-self: flex-start;
+      transition: all 0.2s;
+    }
+
+    .help-btn:hover {
+      background: #F8BBD0;
+    }
+
+    .math-help-box {
+      margin-top: 10px;
+      background: #FFF9C4;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #795548;
+      display: none;
+      border-left: 5px solid #FBC02D;
+      line-height: 1.5;
+    }
+
+    /* 右側點心派對舞台 */
+    .party-stage {
+      background: #FFFDE7;
+      border: 2px dashed #FFF59D;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+      margin-bottom: 14px;
+    }
+
+    /* 盤子與點心視覺容器 */
+    .plates-container {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      padding: 8px;
+    }
+
+    .plate {
+      background: white;
+      border: 3px solid #FFCC80;
+      border-radius: 50%;
+      width: 82px;
+      height: 82px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+      position: relative;
+    }
+
+    .plate::after {
+      content: '';
+      position: absolute;
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      border: 1px dashed #FFE0B2;
+      pointer-events: none;
+    }
+
+    .snack-item {
+      font-size: 24px;
+      margin: 2px;
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 4 個互動選項卡 */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .opt-btn {
+      background: white;
+      border: 2px solid #CFD8DC;
+      border-radius: 14px;
+      padding: 14px 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #37474F;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      text-align: center;
+    }
+
+    .opt-btn:hover {
+      border-color: #EC407A;
+      background: #FCE4EC;
+      color: #AD1457;
+    }
+
+    .opt-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* 彈窗 Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: white;
+      padding: 30px 24px;
+      border-radius: 26px;
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+      animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalPop {
+      0% { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-icon {
+      font-size: 58px;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #263238;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 17px;
+      color: #546E7A;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .btn-next {
+      background: #EC407A;
+      color: white;
+      width: 100%;
+      padding: 14px;
+      font-size: 19px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(236, 64, 122, 0.3);
+    }
+
+    .btn-next:hover {
+      background: #D81B60;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部資訊列 -->
+  <header>
+    <div class="title-area">
+      <span class="icon">🧁</span>
+      <span>點心烘焙派對</span>
+    </div>
+    <div class="stats">
+      <div class="stat-badge">⭐ 餅乾徽章: <span id="scoreText">0</span></div>
+      <div class="stat-badge">🎯 訂單: <span id="levelText">1 / 15</span></div>
+    </div>
+  </header>
+
+  <!-- 模式切換按鈕區 -->
+  <div class="mode-selector">
+    <button class="mode-btn active-basic" id="btnModeBasic" onclick="switchMode('basic')">
+      <span>🍓 基礎模式：被乘數與乘數辨析 (全15題)</span>
+      <span class="sub-text">嚴格辨析「每盤幾個(被乘數) × 有幾盤(乘數)」不可顛倒</span>
+    </button>
+    <button class="mode-btn" id="btnModeAdv" onclick="switchMode('adv')">
+      <span>🥞 進階模式：九九乘法熟練與平分啟蒙 (全15題)</span>
+      <span class="sub-text">九九乘法生活反射、乘法兩步驟與初步分裝平分</span>
+    </button>
+  </div>
+
+  <!-- 進度條 -->
+  <div class="progress-bar-container">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- 遊戲主體 -->
+  <main class="game-container">
+    
+    <!-- 左側：烘焙派對點單卡 -->
+    <section class="card">
+      <div class="stage-tag tag-basic" id="stageTag">基礎模式</div>
+
+      <div class="story-card">
+        <div class="avatar" id="avatarIcon">👩‍🍳</div>
+        <div class="speech-bubble" id="storySpeech">烘焙坊出爐香噴噴的點心啦！請寫出正確的乘法列式！</div>
+      </div>
+
+      <div class="target-mission-card">
+        <div class="target-title">📋 點心訂單規格：</div>
+        <div class="target-question" id="targetQuestion">算算看，點心的乘法算式要怎麼記錄呢？</div>
+        <div style="font-size: 15px; color: #546E7A; line-height: 1.5; margin-top: 4px;" id="scenarioDesc">
+          請仔細看清楚「每盤幾個」與「有幾盤」，順序不能寫反喔！
+        </div>
+
+        <button class="help-btn" onclick="toggleHelp()">💡 看主廚烘焙小秘訣</button>
+        <div class="math-help-box" id="helpBox">
+          <strong>二年級乘法列式關鍵規範：</strong><br>
+          <span id="helpContent">「每份的數量 (被乘數)」一定要寫在前面，「有幾份 (乘數)」寫在後面！</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右側：烘焙盤子展示舞台與答題選項 -->
+    <section class="card">
+      <div class="party-stage">
+        <!-- 點心盤子動態渲染區 -->
+        <div class="plates-container" id="platesContainer"></div>
+      </div>
+
+      <!-- 四個作答選項按鈕 -->
+      <div class="options-grid" id="optionsContainer"></div>
+    </section>
+
+  </main>
+
+  <!-- 彈窗回饋 Modal -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="modal-card">
+      <div class="modal-icon" id="modalIcon">🎉</div>
+      <div class="modal-title" id="modalTitle">列式正確，香甜出爐！</div>
+      <div class="modal-desc" id="modalDesc">被乘數與乘數順序完全正確，符合二年級數學嚴謹規範！</div>
+      <button class="btn-next" id="modalBtn" onclick="nextQuestion()">製作下一份點心 ➡️</button>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'basic'; // 'basic' 或 'adv'
+    let score = 0;
+    let currentLevel = 1;
+    const totalLevels = 15;
+
+    // 【題庫一】基礎模式（15題）：嚴格考驗「被乘數 × 乘數」vs「乘數 × 被乘數」
+    const basicQuestions = [
+      {
+        q: "有 3 個盤子，每盤放 2 顆草莓，正確的乘法算式是哪一個？",
+        desc: "注意：「每盤數量」要寫在前面，「盤數」寫在後面！",
+        avatar: "🐰",
+        item: "🍓",
+        plates: 3,
+        perPlate: 2,
+        options: ["2 × 3 = 6 顆", "3 × 2 = 6 顆", "2 + 3 = 5 顆", "3 + 3 = 6 顆"],
+        ans: "2 × 3 = 6 顆",
+        wrongDistractor: "3 × 2 = 6 顆",
+        tip: "每盤有 2 顆（被乘數），有 3 盤（乘數）。算式必須記作「2 × 3 = 6」！寫成 3 × 2 意思會變成『每盤 3 顆有 2 盤』喔！"
+      },
+      {
+        q: "有 4 個盤子，每盤放 3 個甜甜圈，算式應該怎麼記？",
+        desc: "貓咪超商進貨的巧克力甜甜圈盤點。",
+        avatar: "🐱",
+        item: "🍩",
+        plates: 4,
+        perPlate: 3,
+        options: ["3 × 4 = 12 個", "4 × 3 = 12 個", "3 + 4 = 7 個", "4 + 4 + 4 = 12 個"],
+        ans: "3 × 4 = 12 個",
+        wrongDistractor: "4 × 3 = 12 個",
+        tip: "每盤 3 個放前面，有 4 盤放後面：3 × 4 = 12 個！不可寫成 4 × 3。"
+      },
+      {
+        q: "有 2 個盤子，每盤放 4 塊杯子蛋糕，請問是哪一個算式？",
+        desc: "小狗汪汪的生日蛋糕切盤。",
+        avatar: "🐶",
+        item: "🧁",
+        plates: 2,
+        perPlate: 4,
+        options: ["4 × 2 = 8 塊", "2 × 4 = 8 塊", "4 + 2 = 6 塊", "2 + 2 = 4 塊"],
+        ans: "4 × 2 = 8 塊",
+        wrongDistractor: "2 × 4 = 8 塊",
+        tip: "每盤 4 塊蛋糕，共 2 盤，是 4 的 2 倍，算式記作：4 × 2 = 8 塊！"
+      },
+      {
+        q: "有 3 盤櫻桃，每盤放 5 顆，正確記錄櫻桃總數的算式是？",
+        desc: "櫻桃果凍裝飾盤點。",
+        avatar: "🐿️",
+        item: "🍒",
+        plates: 3,
+        perPlate: 5,
+        options: ["5 × 3 = 15 顆", "3 × 5 = 15 顆", "5 + 3 = 8 顆", "3 + 3 + 3 = 9 顆"],
+        ans: "5 × 3 = 15 顆",
+        wrongDistractor: "3 × 5 = 15 顆",
+        tip: "一盤 5 顆，有 3 盤，算式要寫：5 × 3 = 15 顆！"
+      },
+      {
+        q: "有 5 盤香蕉，每盤放 2 根，算式要怎麼寫才正確？",
+        desc: "小猴子最喜歡的下午茶香蕉盤。",
+        avatar: "🐵",
+        item: "🍌",
+        plates: 5,
+        perPlate: 2,
+        options: ["2 × 5 = 10 根", "5 × 2 = 10 根", "2 + 5 = 7 根", "5 + 5 = 10 根"],
+        ans: "2 × 5 = 10 根",
+        wrongDistractor: "5 × 2 = 10 根",
+        tip: "每盤 2 根放在被乘數，5 盤放在乘數：2 × 5 = 10 根！"
+      },
+      {
+        q: "有 3 盤餅乾，每盤 4 片，寫成「4 × 3」和「3 × 4」有何不同？",
+        desc: "乘法觀念辨析：被乘數與乘數的生活意義。",
+        avatar: "🐻",
+        item: "🍪",
+        plates: 3,
+        perPlate: 4,
+        options: [
+          "正確是 4 × 3（每盤4片有3盤）",
+          "正確是 3 × 4（每盤3片有4盤）",
+          "兩者意思完全一樣沒有差別",
+          "正確是 4 + 3 = 7 片"
+        ],
+        ans: "正確是 4 × 3（每盤4片有3盤）",
+        wrongDistractor: "正確是 3 × 4（每盤3片有4盤）",
+        tip: "雖然 4×3 和 3×4 答案都是 12，但生活情境中「每盤4片有3盤」必須寫成 4 × 3 喔！"
+      },
+      {
+        q: "有 2 盤鬆餅，每盤放 6 塊，哪一個算式完全正確？",
+        desc: "剛出爐熱騰騰的蜂蜜格子鬆餅。",
+        avatar: "🐨",
+        item: "🧇",
+        plates: 2,
+        perPlate: 6,
+        options: ["6 × 2 = 12 塊", "2 × 6 = 12 塊", "6 + 2 = 8 塊", "6 × 6 = 36 塊"],
+        ans: "6 × 2 = 12 塊",
+        wrongDistractor: "2 × 6 = 12 塊",
+        tip: "一盤有 6 塊，有 2 盤，記作 6 × 2 = 12 塊！"
+      },
+      {
+        q: "一盒雞蛋糕有 5 顆，小刺蝟買了 4 盒，正確列式為？",
+        desc: "超人氣排隊小吃雞蛋糕。",
+        avatar: "🦔",
+        item: "🧁",
+        plates: 4,
+        perPlate: 5,
+        options: ["5 × 4 = 20 顆", "4 × 5 = 20 顆", "5 + 4 = 9 顆", "4 + 4 = 8 顆"],
+        ans: "5 × 4 = 20 顆",
+        wrongDistractor: "4 × 5 = 20 顆",
+        tip: "每盒 5 顆（被乘數）× 4 盒（乘數）= 20 顆！"
+      },
+      {
+        q: "有 6 盤布丁，每盤只有 1 個，要怎麼列乘法算式？",
+        desc: "小企鵝特製的滑嫩焦糖布丁。",
+        avatar: "🐧",
+        item: "🍮",
+        plates: 6,
+        perPlate: 1,
+        options: ["1 × 6 = 6 個", "6 × 1 = 6 個", "1 + 6 = 7 個", "6 + 1 = 7 個"],
+        ans: "1 × 6 = 6 個",
+        wrongDistractor: "6 × 1 = 6 個",
+        tip: "每盤 1 個，有 6 盤，是 1 的 6 倍：記作 1 × 6 = 6 個！"
+      },
+      {
+        q: "三輪車每輛有 3 個輪子，廣場上有 5 輛三輪車，總共幾個輪子？",
+        desc: "外送點心車隊輪子總數檢查。",
+        avatar: "🚲",
+        item: "⚙️",
+        plates: 5,
+        perPlate: 3,
+        options: ["3 × 5 = 15 個", "5 × 3 = 15 個", "3 + 5 = 8 個", "5 + 5 = 10 個"],
+        ans: "3 × 5 = 15 個",
+        wrongDistractor: "5 × 3 = 15 個",
+        tip: "一輛有 3 個輪子，5 輛車，記作 3 × 5 = 15 個輪子！"
+      },
+      {
+        q: "一雙筷子有 2 根，餐桌上擺了 6 雙筷子，共有幾根筷子？",
+        desc: "餐具擺放數量檢查。",
+        avatar: "🥢",
+        item: "🥢",
+        plates: 6,
+        perPlate: 2,
+        options: ["2 × 6 = 12 根", "6 × 2 = 12 根", "2 + 6 = 8 根", "6 + 6 = 12 根"],
+        ans: "2 × 6 = 12 根",
+        wrongDistractor: "6 × 2 = 12 根",
+        tip: "一雙 2 根（被乘數），共 6 雙（乘數）：2 × 6 = 12 根！"
+      },
+      {
+        q: "有 4 盤蜜蘋果，每盤放 7 顆，正確算式是？",
+        desc: "新鮮採收的蜜蘋果分盤。",
+        avatar: "🍎",
+        item: "🍎",
+        plates: 4,
+        perPlate: 7,
+        options: ["7 × 4 = 28 顆", "4 × 7 = 28 顆", "7 + 4 = 11 顆", "7 × 7 = 49 顆"],
+        ans: "7 × 4 = 28 顆",
+        wrongDistractor: "4 × 7 = 28 顆",
+        tip: "每盤 7 顆，共有 4 盤：7 × 4 = 28 顆！不可寫 4 × 7。"
+      },
+      {
+        q: "每盤有 8 顆小糖果，桌上有 3 盤，應該怎麼列式計算？",
+        desc: "派對迎賓綜合水果糖盤點。",
+        avatar: "🍬",
+        item: "🍬",
+        plates: 3,
+        perPlate: 8,
+        options: ["8 × 3 = 24 顆", "3 × 8 = 24 顆", "8 + 3 = 11 顆", "3 + 3 + 3 = 9 顆"],
+        ans: "8 × 3 = 24 顆",
+        wrongDistractor: "3 × 8 = 24 顆",
+        tip: "每盤 8 顆是主角（被乘數），有 3 盤：8 × 3 = 24 顆！"
+      },
+      {
+        q: "一盒彩色鉛筆有 6 支，買了 5 盒，請問算式列法為何？",
+        desc: "繪畫班團購文具用品。",
+        avatar: "✏️",
+        item: "✏️",
+        plates: 5,
+        perPlate: 6,
+        options: ["6 × 5 = 30 支", "5 × 6 = 30 支", "6 + 5 = 11 支", "5 + 5 = 10 支"],
+        ans: "6 × 5 = 30 支",
+        wrongDistractor: "5 × 6 = 30 支",
+        tip: "一盒 6 支買 5 盒：6 × 5 = 30 支！"
+      },
+      {
+        q: "壓軸挑戰：有 5 盤棒棒糖，每盤 3 支，列式是「3×5」還是「5×3」？",
+        desc: "慶祝派對彩虹棒棒糖壓軸題。",
+        avatar: "🍭",
+        item: "🍭",
+        plates: 5,
+        perPlate: 3,
+        options: ["3 × 5 = 15 支", "5 × 3 = 15 支", "3 + 5 = 8 支", "5 + 3 = 8 支"],
+        ans: "3 × 5 = 15 支",
+        wrongDistractor: "5 × 3 = 15 支",
+        tip: "每盤 3 支（被乘數），有 5 盤（乘數），答案必須是 3 × 5 = 15 支！"
+      }
+    ];
+
+    // 【題庫二】進階模式（15題）：九九乘法熟練、乘法結合兩步驟、平分/分裝啟蒙
+    const advQuestions = [
+      {
+        q: "九九乘法快問快答：6 × 4 是多少？",
+        desc: "大廚師快速默背九九乘法口訣。",
+        avatar: "🧑‍🍳",
+        item: "🧁",
+        plates: 4,
+        perPlate: 6,
+        options: ["24", "18", "28", "20"],
+        ans: "24",
+        tip: "口訣：六四二十四！"
+      },
+      {
+        q: "九九乘法快問快答：7 × 5 是多少？",
+        desc: "烤箱烘烤時間計算。",
+        avatar: "🦉",
+        item: "🍪",
+        plates: 5,
+        perPlate: 7,
+        options: ["35", "30", "40", "42"],
+        ans: "35",
+        tip: "口訣：七五三十五！"
+      },
+      {
+        q: "九九乘法快問快答：8 × 6 是多少？",
+        desc: "森林大會點心箱包裝。",
+        avatar: "🐻",
+        item: "🍩",
+        plates: 6,
+        perPlate: 8,
+        options: ["48", "46", "54", "42"],
+        ans: "48",
+        tip: "口訣：八六四十八！"
+      },
+      {
+        q: "九九乘法快問快答：9 × 7 是多少？",
+        desc: "大訂單糖果包裝數量。",
+        avatar: "🦊",
+        item: "🍬",
+        plates: 7,
+        perPlate: 9,
+        options: ["63", "56", "72", "64"],
+        ans: "63",
+        tip: "口訣：九七六十三！"
+      },
+      {
+        q: "一盒泡芙有 6 顆，媽媽買了 3 盒，弟弟吃了 2 顆，還剩下幾顆？",
+        desc: "兩步驟生活應用題：先乘後減。",
+        avatar: "🐨",
+        item: "🧁",
+        plates: 3,
+        perPlate: 6,
+        options: ["16 顆", "18 顆", "14 顆", "20 顆"],
+        ans: "16 顆",
+        tip: "先算總數：6 × 3 = 18 顆。吃掉減去：18 - 2 = 16 顆！"
+      },
+      {
+        q: "一包餅乾有 8 塊，小明買了 2 包，姐姐又送他 5 塊，現在有幾塊？",
+        desc: "兩步驟生活應用題：先乘後加。",
+        avatar: "🐶",
+        item: "🍪",
+        plates: 2,
+        perPlate: 8,
+        options: ["21 塊", "16 塊", "26 塊", "13 塊"],
+        ans: "21 塊",
+        tip: "先乘：8 × 2 = 16 塊。再加：16 + 5 = 21 塊！"
+      },
+      {
+        q: "九九乘法快問快答：4 × 8 是多少？",
+        desc: "快速熟練四的乘法。",
+        avatar: "🐸",
+        item: "🥞",
+        plates: 8,
+        perPlate: 4,
+        options: ["32", "28", "36", "24"],
+        ans: "32",
+        tip: "口訣：四八三十二！"
+      },
+      {
+        q: "【平分啟蒙】有 12 顆草莓，平分給 3 位小朋友，每人分到幾顆？",
+        desc: "森林下午茶分裝小遊戲。",
+        avatar: "🐰",
+        item: "🍓",
+        plates: 3,
+        perPlate: 4,
+        options: ["4 顆", "3 顆", "6 顆", "2 顆"],
+        ans: "4 顆",
+        tip: "想一想乘法：誰 × 3 = 12？是 4 × 3 = 12，所以每人分到 4 顆！"
+      },
+      {
+        q: "【平分啟蒙】有 15 個甜甜圈，每 5 個裝一盒，可以裝成幾盒？",
+        desc: "超商禮盒分裝打包。",
+        avatar: "🐱",
+        item: "🍩",
+        plates: 3,
+        perPlate: 5,
+        options: ["3 盒", "4 盒", "5 盒", "2 盒"],
+        ans: "3 盒",
+        tip: "想乘法：5 × (幾) = 15？5 × 3 = 15，所以可以裝 3 盒！"
+      },
+      {
+        q: "九九乘法快問快答：7 × 8 是多少？",
+        desc: "低年級最常被考的大九九乘法題。",
+        avatar: "🦁",
+        item: "🧇",
+        plates: 8,
+        perPlate: 7,
+        options: ["56", "54", "64", "48"],
+        ans: "56",
+        tip: "口訣：七八五十六！"
+      },
+      {
+        q: "一瓶果汁 9 元，小豬買了 4 瓶，付了一張 50 元鈔票，要找回多少元？",
+        desc: "生活乘法與超商找零綜合題。",
+        avatar: "🐷",
+        item: "🧃",
+        plates: 4,
+        perPlate: 9,
+        options: ["14 元", "36 元", "16 元", "24 元"],
+        ans: "14 元",
+        tip: "先算果汁總價：9 × 4 = 36 元。再算找錢：50 - 36 = 14 元！"
+      },
+      {
+        q: "【分裝啟蒙】有 18 塊鬆餅，每 2 塊裝一袋，可以裝成幾袋？",
+        desc: "小熊烘焙坊分袋包裝。",
+        avatar: "🐻",
+        item: "🧇",
+        plates: 9,
+        perPlate: 2,
+        options: ["9 袋", "8 袋", "6 袋", "7 袋"],
+        ans: "9 袋",
+        tip: "想乘法：2 × (幾) = 18？2 × 9 = 18，所以可以裝 9 袋！"
+      },
+      {
+        q: "九九乘法快問快答：9 × 9 是多少？",
+        desc: "九九乘法表的最終極口訣！",
+        avatar: "🦉",
+        item: "⭐",
+        plates: 9,
+        perPlate: 9,
+        options: ["81", "72", "99", "89"],
+        ans: "81",
+        tip: "口訣：九九八十一！"
+      },
+      {
+        q: "一盒彩色筆 8 支，老師買了 5 盒獎勵學生，又追加 3 支，共幾支？",
+        desc: "獎品數量統計兩步驟問題。",
+        avatar: "🐼",
+        item: "✏️",
+        plates: 5,
+        perPlate: 8,
+        options: ["43 支", "40 支", "38 支", "48 支"],
+        ans: "43 支",
+        tip: "先算盒裝：8 × 5 = 40 支。再加上追加：40 + 3 = 43 支！"
+      },
+      {
+        q: "壓軸大挑戰：一塊蛋糕切成 6 等份，有 7 塊完整蛋糕，總共幾等份？",
+        desc: "盛大派對壓軸蛋糕切片計算。",
+        avatar: "🎂",
+        item: "🍰",
+        plates: 7,
+        perPlate: 6,
+        options: ["42 等份", "36 等份", "48 等份", "13 等份"],
+        ans: "42 等份",
+        tip: "一塊切 6 份，7 塊就是 6 × 7 = 42 等份！"
+      }
+    ];
+
+    let currentQ = {};
+
+    // Web Audio API
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playTone(freq, type = 'sine', duration = 0.15) {
+      try {
+        if (!audioCtx) audioCtx = new AudioCtx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function soundSuccess() {
+      playTone(523, 'triangle', 0.1);
+      setTimeout(() => playTone(659, 'triangle', 0.1), 100);
+      setTimeout(() => playTone(783, 'triangle', 0.1), 200);
+      setTimeout(() => playTone(1046, 'triangle', 0.25), 300);
+    }
+
+    function soundError() {
+      playTone(260, 'sawtooth', 0.2);
+    }
+
+    function soundFanfare() {
+      const notes = [523, 659, 784, 1046, 784, 1046];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => playTone(freq, 'triangle', 0.2), idx * 150);
+      });
+    }
+
+    // 模式切換
+    function switchMode(mode) {
+      currentMode = mode;
+      currentLevel = 1;
+      score = 0;
+
+      const btnBasic = document.getElementById('btnModeBasic');
+      const btnAdv = document.getElementById('btnModeAdv');
+
+      if (mode === 'basic') {
+        btnBasic.className = 'mode-btn active-basic';
+        btnAdv.className = 'mode-btn';
+        document.getElementById('stageTag').className = 'stage-tag tag-basic';
+      } else {
+        btnBasic.className = 'mode-btn';
+        btnAdv.className = 'mode-btn active-adv';
+        document.getElementById('stageTag').className = 'stage-tag tag-adv';
+      }
+
+      loadQuestion();
+    }
+
+    function updateHeader() {
+      document.getElementById('scoreText').innerText = score;
+      document.getElementById('levelText').innerText = `${currentLevel} / ${totalLevels}`;
+      const percent = (currentLevel / totalLevels) * 100;
+      document.getElementById('progressFill').style.width = `${percent}%`;
+    }
+
+    // 渲染盤子與點心物品
+    function renderPlates(q) {
+      const container = document.getElementById('platesContainer');
+      container.innerHTML = '';
+
+      const isLarge = q.plates > 5;
+
+      for (let p = 0; p < q.plates; p++) {
+        const plate = document.createElement('div');
+        plate.className = 'plate';
+        if (isLarge) {
+          plate.style.width = '68px';
+          plate.style.height = '68px';
+        }
+
+        // 每盤內的點心
+        for (let i = 0; i < q.perPlate; i++) {
+          const snack = document.createElement('span');
+          snack.className = 'snack-item';
+          snack.innerText = q.item;
+          if (isLarge || q.perPlate > 4) {
+            snack.style.fontSize = '18px';
+          }
+          plate.appendChild(snack);
+        }
+
+        container.appendChild(plate);
+      }
+    }
+
+    // 載入題目
+    function loadQuestion() {
+      const bank = currentMode === 'basic' ? basicQuestions : advQuestions;
+      currentQ = bank[currentLevel - 1];
+
+      document.getElementById('stageTag').innerText = `${currentMode === 'basic' ? '🍓 基礎模式' : '🥞 進階模式'} - 第 ${currentLevel} 題`;
+      document.getElementById('avatarIcon').innerText = currentQ.avatar;
+      document.getElementById('targetQuestion').innerText = currentQ.q;
+      document.getElementById('scenarioDesc').innerText = currentQ.desc;
+      document.getElementById('storySpeech').innerText = `烘焙小學徒請注意！${currentQ.q}`;
+
+      document.getElementById('helpContent').innerHTML = `💡 烘焙秘訣：${currentQ.tip}`;
+      document.getElementById('helpBox').style.display = 'none';
+
+      renderPlates(currentQ);
+      renderOptions(currentQ);
+      updateHeader();
+    }
+
+    function toggleHelp() {
+      const box = document.getElementById('helpBox');
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // 渲染選項按鈕
+    function renderOptions(q) {
+      const optContainer = document.getElementById('optionsContainer');
+      optContainer.innerHTML = '';
+
+      q.options.forEach(optText => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerText = optText;
+        btn.onclick = () => selectOption(optText);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    // 選擇答案
+    function selectOption(selected) {
+      const isCorrect = (selected === currentQ.ans);
+      const modal = document.getElementById('feedbackModal');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const desc = document.getElementById('modalDesc');
+      const btn = document.getElementById('modalBtn');
+
+      if (isCorrect) {
+        score += 10;
+        updateHeader();
+
+        if (currentLevel >= totalLevels) {
+          soundFanfare();
+          const modeName = currentMode === 'basic' ? '基礎乘法意義與列式辨析' : '進階九九乘法與平分啟蒙';
+          icon.innerText = "🏆 森林皇家特級甜點主廚！";
+          title.innerText = `恭喜完成【${modeName}】全 15 關！`;
+          title.style.color = "#C2185B";
+          desc.innerHTML = `太不可思議了！你完美辨析了所有乘法算式的順序！<br>獲得總分 <strong>${score} / 150</strong> 枚餅乾徽章！<br>現在你已經是乘法意義與乘法列式大師了！`;
+
+          if (currentMode === 'basic') {
+            btn.innerText = "挑戰【進階九九乘法與平分】15關 🥞";
+            btn.onclick = () => {
+              modal.style.display = 'none';
+              switchMode('adv');
+            };
+          } else {
+            btn.innerText = "再挑戰一次 🔄";
+            btn.onclick = () => {
+              modal.style.display = 'none';
+              currentLevel = 1;
+              score = 0;
+              loadQuestion();
+            };
+          }
+        } else {
+          soundSuccess();
+          icon.innerText = "🌟 答對了！列式完全正確！";
+          title.innerText = `正確答案：${currentQ.ans}！`;
+          title.style.color = "#2E7D32";
+          desc.innerText = `甜點主廚讚賞你：「被乘數（每盤幾個）與乘數（有幾盤）完全沒有搞混！太棒了！」獲得 10 枚餅乾徽章！`;
+          btn.innerText = `製作第 ${currentLevel + 1} 份點心 ➡️`;
+          btn.onclick = () => {
+            modal.style.display = 'none';
+            currentLevel++;
+            loadQuestion();
+          };
+        }
+      } else {
+        soundError();
+        icon.innerText = "⚠️ 順序掉進陷阱囉！";
+        title.innerText = "被乘數與乘數寫反囉！";
+        title.style.color = "#D84315";
+        
+        let customErr = `你選擇了「${selected}」。`;
+        if (currentQ.wrongDistractor && selected === currentQ.wrongDistractor) {
+          customErr += `<br><span style="color:#C2185B; font-weight:bold;">雖然計算出的總數一樣，但二年級乘法規定：「每盤的數量」一定要寫在前面，「有幾盤」寫在後面！</span>`;
+        }
+        desc.innerHTML = `${customErr}<br>快打開「💡 看主廚烘焙小秘訣」複習列式順序吧！`;
+        btn.innerText = "我再看清楚一次 ↩️";
+        btn.onclick = () => {
+          modal.style.display = 'none';
+        };
+      }
+
+      modal.style.display = 'flex';
+    }
+
+    window.onload = () => {
+      loadQuestion();
+    };
+  </script>
+</body>
+</html>

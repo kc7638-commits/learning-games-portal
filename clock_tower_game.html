@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>魔法鐘樓探險 - 二年級生活數學時間小守護者</title>
+  <style>
+    :root {
+      --primary: #5C6BC0;
+      --primary-dark: #3949AB;
+      --secondary: #26A69A;
+      --secondary-dark: #00897B;
+      --accent: #FFA726;
+      --bg: #F0F4F8;
+      --panel-bg: #FFFFFF;
+      --text: #263238;
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+      --border-r: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+      font-family: 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    /* 頂部狀態列 */
+    header {
+      width: 100%;
+      max-width: 920px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .title-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #3949AB;
+    }
+
+    .title-area .icon {
+      font-size: 32px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .stat-badge {
+      background: #E8EAF6;
+      color: #283593;
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 2px solid #C5CAE9;
+    }
+
+    /* 模式切換 */
+    .mode-selector {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mode-btn {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 900;
+      border: 3px solid transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: white;
+      color: #546E7A;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn .sub-text {
+      font-size: 13px;
+      font-weight: normal;
+      color: #78909C;
+    }
+
+    .mode-btn.active-basic {
+      border-color: #5C6BC0;
+      background: #E8EAF6;
+      color: #1A237E;
+    }
+
+    .mode-btn.active-basic .sub-text {
+      color: #3949AB;
+      font-weight: bold;
+    }
+
+    .mode-btn.active-adv {
+      border-color: #AB47BC;
+      background: #F3E5F5;
+      color: #4A148C;
+    }
+
+    .mode-btn.active-adv .sub-text {
+      color: #7B1FA2;
+      font-weight: bold;
+    }
+
+    /* 進度條 */
+    .progress-bar-container {
+      width: 100%;
+      max-width: 920px;
+      background: #E0E0E0;
+      border-radius: 12px;
+      height: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7E57C2, #26A69A);
+      width: 6.66%;
+      transition: width 0.3s ease;
+    }
+
+    /* 遊戲主容器 */
+    .game-container {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .game-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel-bg);
+      border-radius: var(--border-r);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* 關卡故事情境卡 */
+    .stage-tag {
+      align-self: flex-start;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .tag-basic { background: #E8EAF6; color: #283593; border: 1px solid #C5CAE9; }
+    .tag-adv { background: #F3E5F5; color: #6A1B9A; border: 1px solid #E1BEE7; }
+
+    .story-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #EDE7F6;
+      border-radius: 16px;
+      padding: 12px;
+      border: 2px dashed #B39DDB;
+      margin-bottom: 14px;
+    }
+
+    .avatar {
+      font-size: 52px;
+      animation: float 2.5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .speech-bubble {
+      background: white;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 15px;
+      color: #4527A0;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .target-time-card {
+      background: #FAFAFA;
+      border: 2px solid #E0E0E0;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .target-title {
+      font-size: 16px;
+      color: #546E7A;
+      font-weight: bold;
+    }
+
+    .target-display {
+      font-size: 32px;
+      font-weight: 900;
+      color: #1E88E5;
+      text-align: center;
+      padding: 10px 0;
+      background: #E3F2FD;
+      border-radius: 12px;
+      letter-spacing: 2px;
+    }
+
+    .help-btn {
+      background: #EDE7F6;
+      color: #512DA8;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+      align-self: flex-start;
+      transition: all 0.2s;
+    }
+
+    .help-btn:hover {
+      background: #D1C4E9;
+    }
+
+    .math-help-box {
+      margin-top: 10px;
+      background: #FFF9C4;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #795548;
+      display: none;
+      border-left: 5px solid #FBC02D;
+      line-height: 1.5;
+    }
+
+    /* 時鐘與撥動區 */
+    .clock-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .clock-display-wrap {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      margin: 10px auto;
+    }
+
+    .clock-svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12));
+    }
+
+    .clock-readout {
+      font-size: 22px;
+      font-weight: 900;
+      color: #37474F;
+      margin-bottom: 12px;
+      background: #ECEFF1;
+      padding: 6px 20px;
+      border-radius: 20px;
+    }
+
+    /* 撥針按鈕控制盤 */
+    .stepper-controls {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #F5F5F5;
+      padding: 12px;
+      border-radius: 16px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-weight: bold;
+      font-size: 14px;
+      color: #455A64;
+      width: 90px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .step-btn {
+      flex: 1;
+      padding: 9px 4px;
+      font-size: 13px;
+      font-weight: bold;
+      border: 1px solid #CFD8DC;
+      background: white;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: #37474F;
+    }
+
+    .step-btn:active {
+      transform: scale(0.93);
+      background: #ECEFF1;
+    }
+
+    .step-btn.hour {
+      color: #D32F2F;
+      border-color: #FFCDD2;
+    }
+
+    .step-btn.minute {
+      color: #1976D2;
+      border-color: #BBDEFB;
+    }
+
+    /* 提交與重設 */
+    .action-group {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px;
+      margin-top: 14px;
+      width: 100%;
+    }
+
+    .btn {
+      padding: 13px 18px;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: 900;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-reset {
+      background: #ECEFF1;
+      color: #546E7A;
+    }
+
+    .btn-reset:hover {
+      background: #CFD8DC;
+    }
+
+    .btn-submit {
+      background: #4CAF50;
+      color: white;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-submit:hover {
+      background: #388E3C;
+      transform: translateY(-2px);
+    }
+
+    /* 彈窗 Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: white;
+      padding: 30px 24px;
+      border-radius: 26px;
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+      animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalPop {
+      0% { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-icon {
+      font-size: 58px;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #263238;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 17px;
+      color: #546E7A;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .btn-next {
+      background: #5C6BC0;
+      color: white;
+      width: 100%;
+      padding: 14px;
+      font-size: 19px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(92, 107, 192, 0.3);
+    }
+
+    .btn-next:hover {
+      background: #3949AB;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部資訊列 -->
+  <header>
+    <div class="title-area">
+      <span class="icon">⏰</span>
+      <span>魔法鐘樓探險</span>
+    </div>
+    <div class="stats">
+      <div class="stat-badge">⭐ 星星: <span id="scoreText">0</span></div>
+      <div class="stat-badge">🎯 關卡: <span id="levelText">1 / 15</span></div>
+    </div>
+  </header>
+
+  <!-- 模式切換按鈕區 -->
+  <div class="mode-selector">
+    <button class="mode-btn active-basic" id="btnModeBasic" onclick="switchMode('basic')">
+      <span>🕰️ 基礎模式：整點、半點與5分跳數 (全15題)</span>
+      <span class="sub-text">認識長短針、整點（幾點鐘）、半點（30分）與5分鐘刻度</span>
+    </button>
+    <button class="mode-btn" id="btnModeAdv" onclick="switchMode('adv')">
+      <span>🔮 進階模式：精確1分刻度與時間推移 (全15題)</span>
+      <span class="sub-text">精確時分讀取、快慢幾分鐘、經過時間生活情境</span>
+    </button>
+  </div>
+
+  <!-- 進度條 -->
+  <div class="progress-bar-container">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- 遊戲主體 -->
+  <main class="game-container">
+    
+    <!-- 左側：情境任務區 -->
+    <section class="card">
+      <div class="stage-tag tag-basic" id="stageTag">基礎模式</div>
+
+      <div class="story-card">
+        <div class="avatar" id="avatarIcon">🧙‍♂️</div>
+        <div class="speech-bubble" id="storySpeech">魔法大鐘的時間指針停住了！請守護者幫忙撥動指針修復時間！</div>
+      </div>
+
+      <div class="target-time-card">
+        <div class="target-title">🎯 本題目標時刻：</div>
+        <div class="target-display" id="targetDisplay">8 點 00 分</div>
+        <div style="font-size: 15px; color: #455A64; line-height: 1.5; margin-top: 4px;" id="scenarioDesc">
+          小精靈早晨 8:00 要出發去魔法森林摘蘑菇，請將鐘面撥到 8:00。
+        </div>
+
+        <button class="help-btn" onclick="toggleHelp()">💡 看鐘面指針提示</button>
+        <div class="math-help-box" id="helpBox">
+          <strong>指針辨識小口訣：</strong><br>
+          <span id="helpContent">短針指在數字幾就是幾點；長針指在12代表0分！</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右側：動態時鐘與調整按鈕 -->
+    <section class="card clock-section">
+      <div class="clock-readout" id="clockReadout">目前：8 點 00 分</div>
+
+      <!-- SVG 時鐘面盤 -->
+      <div class="clock-display-wrap">
+        <svg class="clock-svg" viewBox="0 0 200 200" id="clockSvg">
+          <!-- 鐘面外框 -->
+          <circle cx="100" cy="100" r="95" fill="#FFFFFF" stroke="#3F51B5" stroke-width="6"/>
+          <circle cx="100" cy="100" r="88" fill="#FAFAFA" stroke="#E0E0E0" stroke-width="1"/>
+          
+          <!-- 刻度與數字動態生成於此 -->
+          <g id="clockTicks"></g>
+          <g id="clockNumbers"></g>
+
+          <!-- 時針 (紅色短針) -->
+          <line id="hourHand" x1="100" y1="100" x2="100" y2="52" stroke="#E53935" stroke-width="6" stroke-linecap="round"/>
+          
+          <!-- 分針 (藍色長針) -->
+          <line id="minuteHand" x1="100" y1="100" x2="100" y2="30" stroke="#1E88E5" stroke-width="4" stroke-linecap="round"/>
+
+          <!-- 軸心圓點 -->
+          <circle cx="100" cy="100" r="6" fill="#FDD835" stroke="#E65100" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <!-- 指針微調控制盤 -->
+      <div class="stepper-controls">
+        <!-- 時針調整 -->
+        <div class="control-row">
+          <span class="control-label">🔴 短針 (時)</span>
+          <div class="btn-group">
+            <button class="step-btn hour" onclick="adjustTime(-1, 0)">- 1 小時</button>
+            <button class="step-btn hour" onclick="adjustTime(1, 0)">+ 1 小時</button>
+          </div>
+        </div>
+
+        <!-- 5分 / 10分 / 30分 調整 -->
+        <div class="control-row">
+          <span class="control-label">🔵 長針 (分)</span>
+          <div class="btn-group">
+            <button class="step-btn minute" onclick="adjustTime(0, -30)">- 30分</button>
+            <button class="step-btn minute" onclick="adjustTime(0, -5)">- 5分</button>
+            <button class="step-btn minute" onclick="adjustTime(0, 5)">+ 5分</button>
+            <button class="step-btn minute" onclick="adjustTime(0, 30)">+ 30分</button>
+          </div>
+        </div>
+
+        <!-- 1分 精細調整 (進階時特別實用) -->
+        <div class="control-row" id="fineTuneRow">
+          <span class="control-label" style="font-size: 13px;">⚙️ 精細 (1分)</span>
+          <div class="btn-group">
+            <button class="step-btn minute" onclick="adjustTime(0, -1)">- 1分</button>
+            <button class="step-btn minute" onclick="adjustTime(0, 1)">+ 1分</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作按鈕 -->
+      <div class="action-group">
+        <button class="btn btn-reset" onclick="resetToInitial()">🔄 復原</button>
+        <button class="btn btn-submit" onclick="submitTime()">✅ 修復鐘面</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 彈窗回饋 Modal -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="modal-card">
+      <div class="modal-icon" id="modalIcon">🎉</div>
+      <div class="modal-title" id="modalTitle">時間完全吻合！</div>
+      <div class="modal-desc" id="modalDesc">魔法齒輪轉動了，時鐘恢復了正常運作！</div>
+      <button class="btn-next" id="modalBtn" onclick="nextQuestion()">前往下一關 ➡️</button>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'basic'; // 'basic' 或 'adv'
+    let score = 0;
+    let currentLevel = 1;
+    const totalLevels = 15;
+
+    // 當前玩家撥出的時與分
+    let curHour = 12;
+    let curMinute = 0;
+
+    // 15 個生動的生活作息情境（基礎模式：整點、半點、5分跳數）
+    const basicQuestions = [
+      { h: 7, m: 0, avatar: "⏰", title: "上午 7 點 00 分", desc: "早安！鬧鐘響起，森林小夥伴該起床刷牙吃早餐囉！", tip: "短針指著 7，長針指著 12。" },
+      { h: 7, m: 30, avatar: "🍞", title: "上午 7 點 30 分", desc: "美味早餐時間！喝一杯溫熱的牛奶配土司。", tip: "短針在 7 和 8 的中間，長針指著 6（30分）。" },
+      { h: 8, m: 0, avatar: "🎒", title: "上午 8 點 00 分", desc: "背上小書包，和小動物一起走進魔法學校。", tip: "短針指向 8，長針指向 12。" },
+      { h: 8, m: 40, avatar: "📖", title: "上午 8 點 40 分", desc: "第一節數學課開始了，大家專注地聽講。", tip: "短針指過 8 還沒到 9，長針指著 8（5×8=40分）。" },
+      { h: 9, m: 15, avatar: "🎨", title: "上午 9 點 15 分", desc: "美術時間！拿起彩色筆畫出美麗的彩虹。", tip: "短針指過 9 一點點，長針指向 3（5×3=15分）。" },
+      { h: 10, m: 10, avatar: "🏃", title: "上午 10 點 10 分", desc: "下課大下課！到操場做體操、踢球跑步。", tip: "短針指過 10，長針指向 2（5×2=10分）。" },
+      { h: 11, m: 50, avatar: "🍲", title: "上午 11 點 50 分", desc: "肚子咕嚕嚕叫了，排隊洗手準備盛午餐。", tip: "短針快要指到 12 了，長針指在 10（5×10=50分）。" },
+      { h: 12, m: 30, avatar: "😴", title: "中午 12 點 30 分", desc: "吃飽飽，趴在桌上進行香甜的午休小憩。", tip: "短針在 12 和 1 的正中間，長針指著 6（30分）。" },
+      { h: 1, m: 20, avatar: "🌱", title: "下午 1 點 20 分", desc: "自然課觀察小植物，為向日葵澆澆水。", tip: "短針指過 1，長針指在 4（5×4=20分）。" },
+      { h: 2, m: 45, avatar: "🎵", title: "下午 2 點 45 分", desc: "音樂課大家一起拍手唱童謠，真開心！", tip: "短針接近 3，長針指在 9（5×9=45分）。" },
+      { h: 3, m: 30, avatar: "🔔", title: "下午 3 點 30 分", desc: "放學鐘聲響起！收拾書包準備回家或去安親班。", tip: "短針在 3 和 4 中間，長針指著 6（30分）。" },
+      { h: 4, m: 0, avatar: "🚲", title: "下午 4 點 00 分", desc: "在社區公園跟好朋友騎腳踏車、溜滑梯。", tip: "短針指著 4，長針指向 12。" },
+      { h: 5, m: 25, avatar: "🛒", title: "下午 5 點 25 分", desc: "陪媽媽一起去市場買新鮮蔬菜和魚肉。", tip: "短針指在 5 和 6 之間，長針指向 5（5×5=25分）。" },
+      { h: 6, m: 30, avatar: "🍛", title: "晚上 6 點 30 分", desc: "溫馨的家庭晚餐時刻，品嚐香噴噴的咖哩飯。", tip: "短針在 6 和 7 中間，長針指著 6（30分）。" },
+      { h: 9, m: 0, avatar: "🌙", title: "晚上 9 點 00 分", desc: "聽完床邊故事，閉上眼睛進入夢鄉，晚安！", tip: "短針指向 9，長針指向 12。" }
+    ];
+
+    // 15 個時間進階情境（進階模式：精確分針刻度、前後時間推移計算）
+    const advQuestions = [
+      { h: 8, m: 12, avatar: "🚌", title: "上午 8 點 12 分", desc: "校車比平時慢了 2 分鐘，請撥出校車抵達時間。", tip: "長針指在 2（10分）再往後走 2 個小格，短針指在 8 稍微偏右。" },
+      { h: 9, m: 28, avatar: "🔔", title: "上午 9 點 28 分", desc: "第一節課在 9:30 結束，現在距離下課還有 2 分鐘，是幾點幾分？", tip: "9點30分倒退2分鐘是 9點28分！長針指在接近 6（30分）的前兩小格。" },
+      { h: 10, m: 47, avatar: "🧪", title: "上午 10 點 47 分", desc: "科學小實驗需要精確記錄時刻，請撥出此精準時間。", tip: "長針指在 9（45分）再往前走 2 小格（47分），短針接近 11。" },
+      { h: 11, m: 18, avatar: "📦", title: "上午 11 點 18 分", desc: "郵差先生送包裹抵達森林超商的時間刻度。", tip: "長針指在 3（15分）再多走 3 小格是 18分。" },
+      { h: 12, m: 54, avatar: "🏃", title: "中午 12 點 54 分", desc: "午休即將結束，再過 6 分鐘就是下午 1:00 整，現在是幾點幾分？", tip: "距離 1:00 還差 6 分鐘，短針幾乎指到 1，長針指在 54 分（11前一小格）。" },
+      { h: 1, m: 37, avatar: "📚", title: "下午 1 點 37 分", desc: "圖書館借書登記的精確借閱時刻。", tip: "35分是第 7 大格，37分就是第 7 大格再過 2 小格。" },
+      { h: 2, m: 03, avatar: "🌧️", title: "下午 2 點 03 分", desc: "下午 2:00 整剛過 3 分鐘，天空開始飄下毛毛雨。", tip: "短針指著 2，長針從 12 往前走 3 個細小格。" },
+      { h: 3, m: 42, avatar: "🍪", title: "下午 3 點 42 分", desc: "烘焙小餅乾在烤箱裡烤好了，出爐的時刻。", tip: "40分是第 8 大格，42分再往前 2 小格。" },
+      { h: 4, m: 58, avatar: "🌇", title: "下午 4 點 58 分", desc: "夕陽西下，再過 2 分鐘就是下午 5:00 整！", tip: "短針幾乎已經對準 5，長針在 12 前兩小格（58分）。" },
+      { h: 5, m: 16, avatar: "🚏", title: "下午 5 點 16 分", desc: "公車在 5:00 出發，行駛了 16 分鐘後抵達總站。", tip: "5點出發經過16分鐘是 5點16分。短針指在5，長針在3過一小格。" },
+      { h: 6, m: 49, avatar: "📺", title: "晚上 6 點 49 分", desc: "卡通影片在晚上 7:00 開始，現在距離播放還有 11 分鐘。", tip: "7點前11分鐘就是 6點49分！短針接近7，長針在10前一格。" },
+      { h: 7, m: 23, avatar: "✍️", title: "晚上 7 點 23 分", desc: "寫完生字語詞作業，開始檢查數學功課的時刻。", tip: "長針在 4（20分）再走 3 小格是 23分。" },
+      { h: 8, m: 08, avatar: "🎻", title: "晚上 8 點 08 分", desc: "小兔子練習小提琴的時間，8點整開始練了8分鐘。", tip: "短針指在 8，長針在 1（5分）再往後走 3 小格。" },
+      { h: 9, m: 36, avatar: "⭐", title: "晚上 9 點 36 分", desc: "用望遠鏡在陽台看北斗七星的時間。", tip: "35分是數字6，36分再走 1 小格。" },
+      { h: 10, m: 59, avatar: "🌌", title: "晚上 10 點 59 分", desc: "魔法小鎮即將迎來午夜，再過 1 分鐘就是晚上 11:00 整！", tip: "短針已經非常接近 11，長針剛好在 12 前面那一小格（59分）。" }
+    ];
+
+    let currentQ = {};
+
+    // Web Audio API
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playTone(freq, type = 'sine', duration = 0.15) {
+      try {
+        if (!audioCtx) audioCtx = new AudioCtx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function soundTick() {
+      playTone(800, 'triangle', 0.04);
+    }
+
+    function soundSuccess() {
+      playTone(523, 'triangle', 0.1);
+      setTimeout(() => playTone(659, 'triangle', 0.1), 100);
+      setTimeout(() => playTone(783, 'triangle', 0.1), 200);
+      setTimeout(() => playTone(1046, 'triangle', 0.25), 300);
+    }
+
+    function soundError() {
+      playTone(260, 'sawtooth', 0.2);
+    }
+
+    function soundFanfare() {
+      const notes = [523, 659, 784, 1046, 784, 1046];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => playTone(freq, 'triangle', 0.2), idx * 150);
+      });
+    }
+
+    // 繪製時鐘面盤刻度與數字
+    function drawClockFace() {
+      const ticksGroup = document.getElementById('clockTicks');
+      const numsGroup = document.getElementById('clockNumbers');
+      ticksGroup.innerHTML = '';
+      numsGroup.innerHTML = '';
+
+      for (let i = 0; i < 60; i++) {
+        const angle = (i * 6) * (Math.PI / 180);
+        const isHour = i % 5 === 0;
+        const outerR = 88;
+        const innerR = isHour ? 76 : 82;
+
+        const x1 = 100 + outerR * Math.sin(angle);
+        const y1 = 100 - outerR * Math.cos(angle);
+        const x2 = 100 + innerR * Math.sin(angle);
+        const y2 = 100 - innerR * Math.cos(angle);
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x1);
+        line.setAttribute("y1", y1);
+        line.setAttribute("x2", x2);
+        line.setAttribute("y2", y2);
+        line.setAttribute("stroke", isHour ? "#3F51B5" : "#B0BEC5");
+        line.setAttribute("stroke-width", isHour ? "3" : "1.5");
+        line.setAttribute("stroke-linecap", "round");
+        ticksGroup.appendChild(line);
+
+        if (isHour) {
+          const num = i === 0 ? 12 : i / 5;
+          const numR = 64;
+          const nx = 100 + numR * Math.sin(angle);
+          const ny = 100 - numR * Math.cos(angle) + 5;
+
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("x", nx);
+          text.setAttribute("y", ny);
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("font-size", "14");
+          text.setAttribute("font-weight", "900");
+          text.setAttribute("fill", "#283593");
+          text.textContent = num;
+          numsGroup.appendChild(text);
+        }
+      }
+    }
+
+    // 更新時鐘指針角度與讀出文字
+    function renderClock() {
+      // 確保時分在標準範圍
+      while (curMinute >= 60) {
+        curMinute -= 60;
+        curHour = (curHour % 12) + 1;
+      }
+      while (curMinute < 0) {
+        curMinute += 60;
+        curHour = ((curHour - 2 + 12) % 12) + 1;
+      }
+      if (curHour > 12) curHour = ((curHour - 1) % 12) + 1;
+      if (curHour < 1) curHour = 12;
+
+      // 計算分針角度 (每分 6 度)
+      const minAngle = curMinute * 6;
+      // 計算時針角度 (每時 30 度，每分 0.5 度)
+      const hourAngle = (curHour % 12) * 30 + curMinute * 0.5;
+
+      const hourHand = document.getElementById('hourHand');
+      const minHand = document.getElementById('minuteHand');
+
+      hourHand.setAttribute('transform', `rotate(${hourAngle} 100 100)`);
+      minHand.setAttribute('transform', `rotate(${minAngle} 100 100)`);
+
+      const formattedMin = curMinute < 10 ? `0${curMinute}` : curMinute;
+      document.getElementById('clockReadout').innerText = `目前：${curHour} 點 ${formattedMin} 分`;
+    }
+
+    // 調整時間
+    function adjustTime(dh, dm) {
+      soundTick();
+      curHour += dh;
+      curMinute += dm;
+      renderClock();
+    }
+
+    // 模式切換
+    function switchMode(mode) {
+      currentMode = mode;
+      currentLevel = 1;
+      score = 0;
+
+      const btnBasic = document.getElementById('btnModeBasic');
+      const btnAdv = document.getElementById('btnModeAdv');
+
+      if (mode === 'basic') {
+        btnBasic.className = 'mode-btn active-basic';
+        btnAdv.className = 'mode-btn';
+        document.getElementById('stageTag').className = 'stage-tag tag-basic';
+      } else {
+        btnBasic.className = 'mode-btn';
+        btnAdv.className = 'mode-btn active-adv';
+        document.getElementById('stageTag').className = 'stage-tag tag-adv';
+      }
+
+      loadQuestion();
+    }
+
+    function updateHeader() {
+      document.getElementById('scoreText').innerText = score;
+      document.getElementById('levelText').innerText = `${currentLevel} / ${totalLevels}`;
+      const percent = (currentLevel / totalLevels) * 100;
+      document.getElementById('progressFill').style.width = `${percent}%`;
+    }
+
+    // 重設回最初題目偏移狀態
+    function resetToInitial() {
+      // 故意給一個與答案不同的起始時間讓學生調整
+      curHour = 12;
+      curMinute = 0;
+      if (currentQ.h === 12 && currentQ.m === 0) {
+        curHour = 6;
+        curMinute = 30;
+      }
+      renderClock();
+    }
+
+    function loadQuestion() {
+      const bank = currentMode === 'basic' ? basicQuestions : advQuestions;
+      currentQ = bank[currentLevel - 1];
+
+      document.getElementById('stageTag').innerText = `${currentMode === 'basic' ? '🕰️ 基礎模式' : '🔮 進階模式'} - 第 ${currentLevel} 題`;
+      document.getElementById('avatarIcon').innerText = currentQ.avatar;
+      document.getElementById('targetDisplay').innerText = currentQ.title;
+      document.getElementById('scenarioDesc').innerText = currentQ.desc;
+      document.getElementById('storySpeech').innerText = `守護者請注意！將時鐘長短針轉到「${currentQ.title}」！`;
+
+      document.getElementById('helpContent').innerHTML = 
+        `🎯 目標：<strong>${currentQ.title}</strong><br>` +
+        `💡 秘訣指引：${currentQ.tip}`;
+      document.getElementById('helpBox').style.display = 'none';
+
+      resetToInitial();
+      updateHeader();
+    }
+
+    function toggleHelp() {
+      const box = document.getElementById('helpBox');
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // 提交比對
+    function submitTime() {
+      const targetH = currentQ.h;
+      const targetM = currentQ.m;
+
+      const isCorrect = (curHour === targetH || (curHour === 12 && targetH === 0)) && (curMinute === targetM);
+
+      const modal = document.getElementById('feedbackModal');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const desc = document.getElementById('modalDesc');
+      const btn = document.getElementById('modalBtn');
+
+      if (isCorrect) {
+        score += 10;
+        updateHeader();
+
+        if (currentLevel >= totalLevels) {
+          soundFanfare();
+          const modeName = currentMode === 'basic' ? '基礎整點與半點' : '進階精確時間推移';
+          icon.innerText = "🏆 大魔法時鐘守護者！";
+          title.innerText = `恭喜完成【${modeName}】全 15 關！`;
+          title.style.color = "#FF6F00";
+          desc.innerHTML = `太精彩了！你修復了鐘樓所有 15 個時空的指針！<br>獲得總分 <strong>${score} / 150</strong> 顆星星！<br>現在你已經是看懂時鐘與時間的生活大師了！`;
+
+          if (currentMode === 'basic') {
+            btn.innerText = "挑戰【進階精確1分刻度】15關 🔮";
+            btn.onclick = () => {
+              modal.style.display = 'none';
+              switchMode('adv');
+            };
+          } else {
+            btn.innerText = "再挑戰一次 🔄";
+            btn.onclick = () => {
+              modal.style.display = 'none';
+              currentLevel = 1;
+              score = 0;
+              loadQuestion();
+            };
+          }
+        } else {
+          soundSuccess();
+          icon.innerText = "🌟 答對了！指針完全吻合！";
+          title.innerText = `${currentQ.title} 修復成功！`;
+          title.style.color = "#2E7D32";
+          desc.innerText = `鐘樓齒輪發出清脆的咔嗒聲，時間魔法正常流動了！獲得 10 顆星星！`;
+          btn.innerText = `進入第 ${currentLevel + 1} 關 ➡️`;
+          btn.onclick = () => {
+            modal.style.display = 'none';
+            currentLevel++;
+            loadQuestion();
+          };
+        }
+      } else {
+        soundError();
+        const formattedUserM = curMinute < 10 ? `0${curMinute}` : curMinute;
+        icon.innerText = "🤔 指針位置好像不太對喔";
+        title.innerText = "還差一點點就吻合囉！";
+        title.style.color = "#D84315";
+        desc.innerHTML = `目標是 <strong>${currentQ.title}</strong>。<br>目前鐘面撥的是 <strong>${curHour} 點 ${formattedUserM} 分</strong>。<br>可以打開「💡 看鐘面指針提示」再對照一下長針與短針的位置喔！`;
+        btn.innerText = "再調整指針 ↩️";
+        btn.onclick = () => {
+          modal.style.display = 'none';
+        };
+      }
+
+      modal.style.display = 'flex';
+    }
+
+    window.onload = () => {
+      drawClockFace();
+      loadQuestion();
+    };
+  </script>
+</body>
+</html>

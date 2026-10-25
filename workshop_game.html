@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>巧手建造工坊 - 二年級生活數學小建築師</title>
+  <style>
+    :root {
+      --primary: #0288D1;
+      --primary-dark: #01579B;
+      --secondary: #00897B;
+      --secondary-dark: #004D40;
+      --accent: #FF8F00;
+      --bg: #F4F6F9;
+      --panel-bg: #FFFFFF;
+      --text: #263238;
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+      --border-r: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+      font-family: 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    /* 頂部狀態列 */
+    header {
+      width: 100%;
+      max-width: 920px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .title-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #0277BD;
+    }
+
+    .title-area .icon {
+      font-size: 32px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .stat-badge {
+      background: #E1F5FE;
+      color: #0277BD;
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 2px solid #B3E5FC;
+    }
+
+    /* 模式切換 */
+    .mode-selector {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mode-btn {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 900;
+      border: 3px solid transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: white;
+      color: #546E7A;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn .sub-text {
+      font-size: 13px;
+      font-weight: normal;
+      color: #78909C;
+    }
+
+    .mode-btn.active-basic {
+      border-color: #0288D1;
+      background: #E1F5FE;
+      color: #01579B;
+    }
+
+    .mode-btn.active-basic .sub-text {
+      color: #0288D1;
+      font-weight: bold;
+    }
+
+    .mode-btn.active-adv {
+      border-color: #00897B;
+      background: #E0F2F1;
+      color: #004D40;
+    }
+
+    .mode-btn.active-adv .sub-text {
+      color: #00796B;
+      font-weight: bold;
+    }
+
+    /* 進度條 */
+    .progress-bar-container {
+      width: 100%;
+      max-width: 920px;
+      background: #E0E0E0;
+      border-radius: 12px;
+      height: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0288D1, #26A69A);
+      width: 6.66%;
+      transition: width 0.3s ease;
+    }
+
+    /* 遊戲主容器 */
+    .game-container {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .game-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel-bg);
+      border-radius: var(--border-r);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* 關卡故事情境卡 */
+    .stage-tag {
+      align-self: flex-start;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .tag-basic { background: #E1F5FE; color: #0277BD; border: 1px solid #B3E5FC; }
+    .tag-adv { background: #E0F2F1; color: #00695C; border: 1px solid #B2DFDB; }
+
+    .story-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #FFF8E1;
+      border-radius: 16px;
+      padding: 12px;
+      border: 2px dashed #FFE082;
+      margin-bottom: 14px;
+    }
+
+    .avatar {
+      font-size: 50px;
+      animation: float 2.5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .speech-bubble {
+      background: white;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 15px;
+      color: #E65100;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .target-mission-card {
+      background: #FAFAFA;
+      border: 2px solid #ECEFF1;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .target-title {
+      font-size: 16px;
+      color: #546E7A;
+      font-weight: bold;
+    }
+
+    .target-question {
+      font-size: 20px;
+      font-weight: 900;
+      color: #0277BD;
+      line-height: 1.4;
+    }
+
+    .help-btn {
+      background: #E1F5FE;
+      color: #0277BD;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+      align-self: flex-start;
+      transition: all 0.2s;
+    }
+
+    .help-btn:hover {
+      background: #B3E5FC;
+    }
+
+    .math-help-box {
+      margin-top: 10px;
+      background: #FFF9C4;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #795548;
+      display: none;
+      border-left: 5px solid #FBC02D;
+      line-height: 1.5;
+    }
+
+    /* 右側操作舞台 */
+    .workshop-stage {
+      background: #F1F8E9;
+      border: 2px dashed #AED581;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .measuring-visual {
+      width: 100%;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 4 個互動選項卡 */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .opt-btn {
+      background: white;
+      border: 2px solid #CFD8DC;
+      border-radius: 14px;
+      padding: 14px 10px;
+      font-size: 17px;
+      font-weight: bold;
+      color: #37474F;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .opt-btn:hover {
+      border-color: #0288D1;
+      background: #E1F5FE;
+      color: #01579B;
+    }
+
+    .opt-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* 彈窗 Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: white;
+      padding: 30px 24px;
+      border-radius: 26px;
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+      animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalPop {
+      0% { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-icon {
+      font-size: 58px;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #263238;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 17px;
+      color: #546E7A;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .btn-next {
+      background: #0288D1;
+      color: white;
+      width: 100%;
+      padding: 14px;
+      font-size: 19px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(2, 136, 209, 0.3);
+    }
+
+    .btn-next:hover {
+      background: #01579B;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部資訊列 -->
+  <header>
+    <div class="title-area">
+      <span class="icon">📐</span>
+      <span>巧手建造工坊</span>
+    </div>
+    <div class="stats">
+      <div class="stat-badge">⭐ 磚塊: <span id="scoreText">0</span></div>
+      <div class="stat-badge">🎯 任務: <span id="levelText">1 / 15</span></div>
+    </div>
+  </header>
+
+  <!-- 模式切換按鈕區 -->
+  <div class="mode-selector">
+    <button class="mode-btn active-basic" id="btnModeBasic" onclick="switchMode('basic')">
+      <span>📏 基礎模式：直尺測量與平面圖形 (全15題)</span>
+      <span class="sub-text">直尺刻度對齊 0、公分(cm)實測、邊/角/頂點</span>
+    </button>
+    <button class="mode-btn" id="btnModeAdv" onclick="switchMode('adv')">
+      <span>🏗️ 進階模式：公尺公分換算與幾何空間 (全15題)</span>
+      <span class="sub-text">1公尺=100公分、長度相加減、正方體與立體形體</span>
+    </button>
+  </div>
+
+  <!-- 進度條 -->
+  <div class="progress-bar-container">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- 遊戲主體 -->
+  <main class="game-container">
+    
+    <!-- 左側：建造委託卡 -->
+    <section class="card">
+      <div class="stage-tag tag-basic" id="stageTag">基礎模式</div>
+
+      <div class="story-card">
+        <div class="avatar" id="avatarIcon">👷‍♂️</div>
+        <div class="speech-bubble" id="storySpeech">工坊開工啦！幫小動物們精準測量材料、確認形狀規格吧！</div>
+      </div>
+
+      <div class="target-mission-card">
+        <div class="target-title">📋 建造任務指示：</div>
+        <div class="target-question" id="targetQuestion">請看右側圖示，這根木條有多長呢？</div>
+        <div style="font-size: 15px; color: #546E7A; line-height: 1.5; margin-top: 4px;" id="scenarioDesc">
+          小鳥要蓋新木屋，需要精確測量橫樑的長度。
+        </div>
+
+        <button class="help-btn" onclick="toggleHelp()">💡 看工匠小筆記</button>
+        <div class="math-help-box" id="helpBox">
+          <strong>測量與幾何秘訣：</strong><br>
+          <span id="helpContent">測量長度時，物體前端要對齊尺的「0」刻度喔！</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右側：施工視覺舞台與答題選項 -->
+    <section class="card">
+      <div class="workshop-stage">
+        <!-- SVG 測量與幾何動態繪圖舞台 -->
+        <div class="measuring-visual" id="visualStage"></div>
+      </div>
+
+      <!-- 四個作答選項按鈕 -->
+      <div class="options-grid" id="optionsContainer"></div>
+    </section>
+
+  </main>
+
+  <!-- 彈窗回饋 Modal -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="modal-card">
+      <div class="modal-icon" id="modalIcon">🎉</div>
+      <div class="modal-title" id="modalTitle">測量精確，完美施工！</div>
+      <div class="modal-desc" id="modalDesc">木材裁切得剛剛好，小動物們讚不絕口！</div>
+      <button class="btn-next" id="modalBtn" onclick="nextQuestion()">前往下一項工程 ➡️</button>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'basic'; // 'basic' 或 'adv'
+    let score = 0;
+    let currentLevel = 1;
+    const totalLevels = 15;
+
+    // 【題庫一】基礎模式（15題）：直尺測量(cm)、對齊0、非0起點測量、邊/角/頂點、正方形/長方形/三角形
+    const basicQuestions = [
+      {
+        q: "請看右側木條與直尺，這根木條的長度是幾公分？",
+        desc: "小鳥要蓋鳥巢支架，請確認木條長度。",
+        avatar: "🐦",
+        type: "ruler",
+        start: 0,
+        len: 7,
+        itemType: "wood",
+        options: ["5 公分", "6 公分", "7 公分", "8 公分"],
+        ans: "7 公分",
+        tip: "木條從刻度 0 開始，尾端指在刻度 7，所以長度是 7 公分！"
+      },
+      {
+        q: "這支彩色鉛筆的長度是多少公分？",
+        desc: "設計師松鼠用來畫建築草圖的鉛筆。",
+        avatar: "🐿️",
+        type: "ruler",
+        start: 0,
+        len: 11,
+        itemType: "pencil",
+        options: ["10 公分", "11 公分", "12 公分", "9 公分"],
+        ans: "11 公分",
+        tip: "筆尖對齊 0，筆尾對齊 11，是 11 公分。"
+      },
+      {
+        q: "⚠️ 注意看！這根小鐵釘「沒有」對齊刻度 0，它有多長？",
+        desc: "固定圍籬專用的鋼釘，起點在刻度 2。",
+        avatar: "🦔",
+        type: "ruler",
+        start: 2,
+        len: 6,
+        itemType: "iron",
+        options: ["8 公分", "6 公分", "2 公分", "5 公分"],
+        ans: "6 公分",
+        tip: "當起點不是 0 時，用「終點刻度 - 起點刻度」：8 - 2 = 6 公分！"
+      },
+      {
+        q: "這塊建造牆壁用的紅磚塊，長度是幾公分？",
+        desc: "蓋小兔防風屋的黏土紅磚。",
+        avatar: "🐰",
+        type: "ruler",
+        start: 0,
+        len: 9,
+        itemType: "brick",
+        options: ["8 公分", "9 公分", "10 公分", "7 公分"],
+        ans: "9 公分",
+        tip: "磚塊前端對齊 0，末端指向 9，長度就是 9 公分。"
+      },
+      {
+        q: "⚠️ 這根螺絲起子從刻度 3 開始量到刻度 12，長度是？",
+        desc: "木匠師傅放在工具箱裡的必備螺絲起子。",
+        avatar: "🐻",
+        type: "ruler",
+        start: 3,
+        len: 9,
+        itemType: "tool",
+        options: ["12 公分", "8 公分", "9 公分", "10 公分"],
+        ans: "9 公分",
+        tip: "從 3 量到 12，長度是 12 - 3 = 9 公分。"
+      },
+      {
+        q: "右圖中的幾何圖形有幾個「邊」和幾個「頂點」？",
+        desc: "屋頂建造使用的正三角形鋼架。",
+        avatar: "🦊",
+        type: "shape_triangle",
+        options: ["3個邊，3個頂點", "4個邊，4個頂點", "3個邊，4個頂點", "2個邊，3個頂點"],
+        ans: "3個邊，3個頂點",
+        tip: "三角形有 3 條直線邊，兩條邊交會的地方叫頂點，共有 3 個頂點。"
+      },
+      {
+        q: "建造窗戶需要一個「4條邊一樣長、有4個直角」的形狀，它是？",
+        desc: "松鼠小妹的新窗框材料規格。",
+        avatar: "🐿️",
+        type: "shape_square",
+        options: ["長方形", "正方形", "三角形", "圓形"],
+        ans: "正方形",
+        tip: "4 條邊都一樣長，且 4 個角都是方方的直角，這就是「正方形」！"
+      },
+      {
+        q: "右圖的長方形木門，有幾個「角」？",
+        desc: "大熊木屋的正門設計圖。",
+        avatar: "🐻",
+        type: "shape_rectangle",
+        options: ["2 個角", "3 個角", "4 個角", "5 個角"],
+        ans: "4 個角",
+        tip: "長方形由 4 條邊組成，有 4 個角，而且都是直角！"
+      },
+      {
+        q: "這塊白板橡皮擦的長度是幾公分？",
+        desc: "工坊黑板計算專用的橡皮擦。",
+        avatar: "🐶",
+        type: "ruler",
+        start: 0,
+        len: 5,
+        itemType: "eraser",
+        options: ["4 公分", "5 公分", "6 公分", "3 公分"],
+        ans: "5 公分",
+        tip: "對齊 0 刻度，末端在 5，就是 5 公分。"
+      },
+      {
+        q: "⚠️ 木尺的刻度 5 到刻度 13 之間，長度是幾公分？",
+        desc: "裁切樓梯扶手木料的測量殘段。",
+        avatar: "🦫",
+        type: "ruler",
+        start: 5,
+        len: 8,
+        itemType: "wood",
+        options: ["13 公分", "7 公分", "8 公分", "9 公分"],
+        ans: "8 公分",
+        tip: "算式：13 - 5 = 8 公分。"
+      },
+      {
+        q: "右側的幾何圖形「圓形」，有幾個尖尖的頂點？",
+        desc: "圓形水池景觀造景。",
+        avatar: "🐸",
+        type: "shape_circle",
+        options: ["0 個頂點", "1 個頂點", "2 個頂點", "4 個頂點"],
+        ans: "0 個頂點",
+        tip: "圓形是圓滑彎曲的線條，沒有直直的邊，也沒有尖尖的頂點喔！"
+      },
+      {
+        q: "測量橡皮擦長度是 4 公分，彩色筆長 10 公分，兩樣接在一起多長？",
+        desc: "文具排排看拼裝測試。",
+        avatar: "🐱",
+        type: "math_cm",
+        options: ["12 公分", "14 公分", "16 公分", "6 公分"],
+        ans: "14 公分",
+        tip: "兩段長度相加：4 + 10 = 14 公分。"
+      },
+      {
+        q: "這根鐵絲原本長 15 公分，剪掉 6 公分後，剩下幾公分？",
+        desc: "綁緊竹籬笆用的鐵絲剪裁。",
+        avatar: "🐼",
+        type: "math_cm",
+        options: ["8 公分", "9 公分", "10 公分", "21 公分"],
+        ans: "9 公分",
+        tip: "剪掉用減法：15 - 6 = 9 公分。"
+      },
+      {
+        q: "哪一種工具「最適合」用來量數學課本的寬度？",
+        desc: "挑選適當的度量工具。",
+        avatar: "🦉",
+        type: "tool_pick",
+        options: ["15公分直尺", "體重計", "溫度計", "時鐘"],
+        ans: "15公分直尺",
+        tip: "測量幾公分的長度，要使用有公分刻度的「直尺」！"
+      },
+      {
+        q: "請指出正方形的邊長特徵：四條邊的長度如何？",
+        desc: "驗收正方形地磚材料規格。",
+        avatar: "🦁",
+        type: "shape_square",
+        options: ["每條邊都不一樣長", "四條邊都一樣長", "只有兩條邊一樣長", "有三條邊"],
+        ans: "四條邊都一樣長",
+        tip: "正方形最重要的特色：4 條邊長度完全相等，4 個角都是直角！"
+      }
+    ];
+
+    // 【題庫二】進階模式（15題）：1公尺(m)=100公分(cm)、長度換算與二步驟計算、立體形體(正方體/圓柱/球體)、面與邊
+    const advQuestions = [
+      {
+        q: "1 公尺（m）等於多少公分（cm）？",
+        desc: "建造操場跑道的基本法定單位常識。",
+        avatar: "🏗️",
+        type: "meter_basic",
+        options: ["10 公分", "100 公分", "1000 公分", "50 公分"],
+        ans: "100 公分",
+        tip: "1 公尺 = 100 公分！請牢牢記住這個大單位換算口訣。"
+      },
+      {
+        q: "長頸鹿班長的身高是 1 公尺 35 公分，換算成「全公分」是多少？",
+        desc: "測量工坊小動物的身高紀錄門檻。",
+        avatar: "🦒",
+        type: "meter_convert",
+        options: ["135 公分", "35 公分", "1035 公分", "153 公分"],
+        ans: "135 公分",
+        tip: "1公尺 = 100公分，100 + 35 = 135 公分！"
+      },
+      {
+        q: "一條紅彩帶長 200 公分，等於幾公尺？",
+        desc: "開幕剪綵典禮的彩帶長度。",
+        avatar: "🎀",
+        type: "meter_convert",
+        options: ["1 公尺", "2 公尺", "20 公尺", "200 公尺"],
+        ans: "2 公尺",
+        tip: "100 公分是 1 公尺，200 公分就是 2 公尺！"
+      },
+      {
+        q: "木工師傅有一條 2 公尺的木料，用掉了 60 公分，還剩下幾公分？",
+        desc: "製作客廳大長桌裁切計算。",
+        avatar: "🐻",
+        type: "meter_math",
+        options: ["140 公分", "120 公分", "40 公分", "160 公分"],
+        ans: "140 公分",
+        tip: "2公尺 = 200公分。200 - 60 = 140 公分！"
+      },
+      {
+        q: "右圖的立體形體「正方體」（積木），總共有幾個「面」？",
+        desc: "搭建彩色積木城堡的基本元件。",
+        avatar: "🧱",
+        type: "shape_cube",
+        options: ["4 個面", "6 個面", "8 個面", "12 個面"],
+        ans: "6 個面",
+        tip: "像骰子或正方體積木一樣，上下、左右、前後，總共有 6 個面！"
+      },
+      {
+        q: "正方體積木總共有幾個「頂點」（尖尖的角角）？",
+        desc: "積木頂點防撞倒角檢驗。",
+        avatar: "👷‍♂️",
+        type: "shape_cube",
+        options: ["6 個頂點", "8 個頂點", "12 個頂點", "4 個頂點"],
+        ans: "8 個頂點",
+        tip: "上面 4 個尖角 + 下面 4 個尖角，總共有 8 個頂點！"
+      },
+      {
+        q: "正方體積木總共有幾條「邊」（棱線）？",
+        desc: "計算邊緣包邊防護條的數量。",
+        avatar: "📐",
+        type: "shape_cube",
+        options: ["8 條邊", "10 條邊", "12 條邊", "16 條邊"],
+        ans: "12 條邊",
+        tip: "上面 4 條 + 下面 4 條 + 四周垂直 4 條，總共有 12 條邊！"
+      },
+      {
+        q: "滾輪刷油漆使用的「圓柱體」，上下兩個底面是什麼形狀？",
+        desc: "粉刷牆壁專用的圓柱形滾筒。",
+        avatar: "🎨",
+        type: "shape_cylinder",
+        options: ["三角形", "正方形", "圓形", "長方形"],
+        ans: "圓形",
+        tip: "圓柱體的上下兩個平面是平平的「圓形」，側面是光滑的曲面。"
+      },
+      {
+        q: "足球與籃球是什麼立體形狀？不管怎麼推都能平順滾動？",
+        desc: "操場體育器材庫房分類。",
+        avatar: "⚽",
+        type: "shape_sphere",
+        options: ["圓柱體", "球體", "長方體", "正方體"],
+        ans: "球體",
+        tip: "沒有邊也沒有頂點，表面全是曲面的立體形狀就是「球體」！"
+      },
+      {
+        q: "花園水管長 3 公尺 40 公分，再接上 1 公尺 20 公分，全長是多少？",
+        desc: "花園自動灑水系統管線鋪設。",
+        avatar: "🌱",
+        type: "meter_math",
+        options: ["4公尺60公分", "4公尺50公分", "5公尺", "4公尺20公分"],
+        ans: "4公尺60公分",
+        tip: "公尺加公尺（3+1=4），公分加公分（40+20=60），答案是 4公尺60公分！"
+      },
+      {
+        q: "學校禮堂布簾長 5 公尺，剪去 2 公尺 80 公分，剩下多少？",
+        desc: "舞台大布簾改造工程。",
+        avatar: "🎭",
+        type: "meter_math",
+        options: ["2公尺20公分", "3公尺20公分", "2公尺80公分", "3公尺"],
+        ans: "2公尺20公分",
+        tip: "5公尺借 1公尺（100公分）出來：4公尺100公分 - 2公尺80公分 = 2公尺20公分！"
+      },
+      {
+        q: "小狗跑了 65 公尺，小貓跑了 48 公尺，小狗比小貓多跑了幾公尺？",
+        desc: "草地障礙跑道測量成績。",
+        avatar: "🐶",
+        type: "meter_math",
+        options: ["13 公尺", "17 公尺", "23 公尺", "113 公尺"],
+        ans: "17 公尺",
+        tip: "二位數減法：65 - 48 = 17 公尺！"
+      },
+      {
+        q: "「長方體」的 6 個面，通常是由什麼平面圖形組成的？",
+        desc: "包裝紙箱與大貨櫃的形狀特徵。",
+        avatar: "📦",
+        type: "shape_box",
+        options: ["圓形", "長方形或正方形", "三角形", "六邊形"],
+        ans: "長方形或正方形",
+        tip: "面紙盒、大紙箱就是長方體，它的每個面都是長方形（或包含正方形）。"
+      },
+      {
+        q: "一塊木板長 85 公分，需要幾公分才能湊成剛好「1 公尺」？",
+        desc: "補齊門檻空隙的修補木料。",
+        avatar: "🪵",
+        type: "meter_math",
+        options: ["25 公分", "15 公分", "10 公分", "35 公分"],
+        ans: "15 公分",
+        tip: "1公尺 = 100公分。100 - 85 = 15 公分！"
+      },
+      {
+        q: "大師級挑戰：圍籬長 4公尺8公分，換成全公分是多少公分？",
+        desc: "大城堡外圍護欄驗收最終題。",
+        avatar: "🏰",
+        type: "meter_convert",
+        options: ["48 公分", "480 公分", "408 公分", "4008 公分"],
+        ans: "408 公分",
+        tip: "注意十位是0！4公尺 = 400公分，400 + 8 = 408 公分，千萬別寫成 480 喔！"
+      }
+    ];
+
+    let currentQ = {};
+
+    // Web Audio API
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playTone(freq, type = 'sine', duration = 0.15) {
+      try {
+        if (!audioCtx) audioCtx = new AudioCtx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function soundSuccess() {
+      playTone(523, 'triangle', 0.1);
+      setTimeout(() => playTone(659, 'triangle', 0.1), 100);
+      setTimeout(() => playTone(783, 'triangle', 0.1), 200);
+      setTimeout(() => playTone(1046, 'triangle', 0.25), 300);
+    }
+
+    function soundError() {
+      playTone(260, 'sawtooth', 0.2);
+    }
+
+    function soundFanfare() {
+      const notes = [523, 659, 784, 1046, 784, 1046];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => playTone(freq, 'triangle', 0.2), idx * 150);
+      });
+    }
+
+    // 模式切換
+    function switchMode(mode) {
+      currentMode = mode;
+      currentLevel = 1;
+      score = 0;
+
+      const btnBasic = document.getElementById('btnModeBasic');
+      const btnAdv = document.getElementById('btnModeAdv');
+
+      if (mode === 'basic') {
+        btnBasic.className = 'mode-btn active-basic';
+        btnAdv.className = 'mode-btn';
+        document.getElementById('stageTag').className = 'stage-tag tag-basic';
+      } else {
+        btnBasic.className = 'mode-btn';
+        btnAdv.className = 'mode-btn active-adv';
+        document.getElementById('stageTag').className = 'stage-tag tag-adv';
+      }
+
+      loadQuestion();
+    }
+
+    function updateHeader() {
+      document.getElementById('scoreText').innerText = score;
+      document.getElementById('levelText').innerText = `${currentLevel} / ${totalLevels}`;
+      const percent = (currentLevel / totalLevels) * 100;
+      document.getElementById('progressFill').style.width = `${percent}%`;
+    }
+
+    // 動態繪製直尺與物件視覺
+    function renderVisualStage(q) {
+      const container = document.getElementById('visualStage');
+      container.innerHTML = '';
+
+      if (q.type === 'ruler') {
+        // SVG 直尺量測渲染
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 360 140");
+        svg.style.width = "100%";
+        svg.style.height = "100%";
+
+        const originX = 30; // 刻度0對應的 X 座標
+        const scaleStep = 22; // 每一公分 22px
+        const maxTick = 14;
+
+        // 被測量物體
+        const startX = originX + q.start * scaleStep;
+        const itemW = q.len * scaleStep;
+
+        const gItem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+        if (q.itemType === 'wood') {
+          gItem.innerHTML = `
+            <rect x="${startX}" y="20" width="${itemW}" height="28" fill="#D7CCC8" stroke="#8D6E63" stroke-width="2" rx="4"/>
+            <line x1="${startX}" y1="20" x2="${startX}" y2="60" stroke="#E65100" stroke-dasharray="3,3" stroke-width="1.5"/>
+            <line x1="${startX + itemW}" y1="20" x2="${startX + itemW}" y2="60" stroke="#E65100" stroke-dasharray="3,3" stroke-width="1.5"/>
+            <text x="${startX + itemW/2}" y="38" font-size="12" fill="#5D4037" text-anchor="middle" font-weight="bold">木料</text>
+          `;
+        } else if (q.itemType === 'pencil') {
+          gItem.innerHTML = `
+            <polygon points="${startX},34 ${startX+15},22 ${startX+itemW},22 ${startX+itemW},46 ${startX+15},46" fill="#FFB74D" stroke="#E65100" stroke-width="2"/>
+            <polygon points="${startX},34 ${startX+6},29 ${startX+6},39" fill="#212121"/>
+            <line x1="${startX}" y1="22" x2="${startX}" y2="60" stroke="#E65100" stroke-dasharray="3,3" stroke-width="1.5"/>
+            <line x1="${startX + itemW}" y1="22" x2="${startX + itemW}" y2="60" stroke="#E65100" stroke-dasharray="3,3" stroke-width="1.5"/>
+          `;
+        } else if (q.itemType === 'iron') {
+          gItem.innerHTML = `
+            <rect x="${startX}" y="30" width="8" height="16" fill="#78909C" rx="2"/>
+            <polygon points="${startX+8},34 ${startX+itemW},38 ${startX+8},42" fill="#B0BEC5" stroke="#455A64" stroke-width="1.5"/>
+            <line x1="${startX}" y1="28" x2="${startX}" y2="60" stroke="#D32F2F" stroke-dasharray="3,3" stroke-width="1.5"/>
+            <line x1="${startX + itemW}" y1="28" x2="${startX + itemW}" y2="60" stroke="#D32F2F" stroke-dasharray="3,3" stroke-width="1.5"/>
+          `;
+        } else if (q.itemType === 'brick') {
+          gItem.innerHTML = `
+            <rect x="${startX}" y="20" width="${itemW}" height="28" fill="#EF5350" stroke="#B71C1C" stroke-width="2" rx="3"/>
+            <text x="${startX + itemW/2}" y="38" font-size="12" fill="#FFFFFF" text-anchor="middle" font-weight="bold">紅磚</text>
+            <line x1="${startX}" y1="20" x2="${startX}" y2="60" stroke="#C62828" stroke-dasharray="3,3" stroke-width="1.5"/>
+            <line x1="${startX + itemW}" y1="20" x2="${startX + itemW}" y2="60" stroke="#C62828" stroke-dasharray="3,3" stroke-width="1.5"/>
+          `;
+        } else if (q.itemType === 'eraser') {
+          gItem.innerHTML = `
+            <rect x="${startX}" y="22" width="${itemW}" height="24" fill="#81D4FA" stroke="#0288D1" stroke-width="2" rx="4"/>
+            <text x="${startX + itemW/2}" y="38" font-size="11" fill="#01579B" text-anchor="middle" font-weight="bold">橡皮擦</text>
+            <line x1="${startX}" y1="22" x2="${startX}" y2="60" stroke="#0277BD" stroke-dasharray="3,3" stroke-width="1.5"/>
+            <line x1="${startX + itemW}" y1="22" x2="${startX + itemW}" y2="60" stroke="#0277BD" stroke-dasharray="3,3" stroke-width="1.5"/>
+          `;
+        } else {
+          gItem.innerHTML = `
+            <rect x="${startX}" y="24" width="${itemW}" height="22" fill="#CFD8DC" stroke="#455A64" stroke-width="2" rx="3"/>
+            <line x1="${startX}" y1="20" x2="${startX}" y2="60" stroke="#37474F" stroke-dasharray="3,3" stroke-width="1.5"/>
+            <line x1="${startX + itemW}" y1="20" x2="${startX + itemW}" y2="60" stroke="#37474F" stroke-dasharray="3,3" stroke-width="1.5"/>
+          `;
+        }
+        svg.appendChild(gItem);
+
+        // 尺身本體
+        const rulerBody = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rulerBody.setAttribute("x", "15");
+        rulerBody.setAttribute("y", "60");
+        rulerBody.setAttribute("width", "330");
+        rulerBody.setAttribute("height", "55");
+        rulerBody.setAttribute("fill", "#FFF9C4");
+        rulerBody.setAttribute("stroke", "#FBC02D");
+        rulerBody.setAttribute("stroke-width", "2");
+        rulerBody.setAttribute("rx", "6");
+        svg.appendChild(rulerBody);
+
+        // 刻度與數字
+        for (let i = 0; i <= maxTick; i++) {
+          const tx = originX + i * scaleStep;
+          const isTen = i % 5 === 0;
+
+          const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          tick.setAttribute("x1", tx);
+          tick.setAttribute("y1", 60);
+          tick.setAttribute("x2", tx);
+          tick.setAttribute("y2", isTen ? 82 : 72);
+          tick.setAttribute("stroke", "#424242");
+          tick.setAttribute("stroke-width", isTen ? "2" : "1");
+          svg.appendChild(tick);
+
+          const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          txt.setAttribute("x", tx);
+          txt.setAttribute("y", 100);
+          txt.setAttribute("font-size", "12");
+          txt.setAttribute("font-weight", "bold");
+          txt.setAttribute("fill", "#37474F");
+          txt.setAttribute("text-anchor", "middle");
+          txt.textContent = i;
+          svg.appendChild(txt);
+        }
+
+        const unitTxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        unitTxt.setAttribute("x", "325");
+        unitTxt.setAttribute("y", "100");
+        unitTxt.setAttribute("font-size", "11");
+        unitTxt.setAttribute("fill", "#757575");
+        unitTxt.setAttribute("font-weight", "bold");
+        unitTxt.textContent = "cm";
+        svg.appendChild(unitTxt);
+
+        container.appendChild(svg);
+      } else if (q.type.startsWith('shape_')) {
+        // 幾何形狀展示
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 200 150");
+        svg.style.width = "100%";
+        svg.style.height = "100%";
+
+        if (q.type === 'shape_triangle') {
+          svg.innerHTML = `
+            <polygon points="100,20 30,130 170,130" fill="#FFE082" stroke="#FF8F00" stroke-width="4"/>
+            <circle cx="100" cy="20" r="6" fill="#D32F2F"/>
+            <circle cx="30" cy="130" r="6" fill="#D32F2F"/>
+            <circle cx="170" cy="130" r="6" fill="#D32F2F"/>
+            <text x="100" y="85" font-size="14" font-weight="900" fill="#E65100" text-anchor="middle">三角形</text>
+          `;
+        } else if (q.type === 'shape_square') {
+          svg.innerHTML = `
+            <rect x="50" y="25" width="100" height="100" fill="#B3E5FC" stroke="#0288D1" stroke-width="4" rx="4"/>
+            <text x="100" y="80" font-size="15" font-weight="900" fill="#01579B" text-anchor="middle">正方形</text>
+          `;
+        } else if (q.type === 'shape_rectangle') {
+          svg.innerHTML = `
+            <rect x="30" y="40" width="140" height="70" fill="#C8E6C9" stroke="#388E3C" stroke-width="4" rx="4"/>
+            <text x="100" y="80" font-size="15" font-weight="900" fill="#1B5E20" text-anchor="middle">長方形</text>
+          `;
+        } else if (q.type === 'shape_circle') {
+          svg.innerHTML = `
+            <circle cx="100" cy="75" r="55" fill="#FFCCBC" stroke="#D84315" stroke-width="4"/>
+            <text x="100" y="80" font-size="15" font-weight="900" fill="#BF360C" text-anchor="middle">圓形</text>
+          `;
+        } else if (q.type === 'shape_cube') {
+          // 正方體 3D 等角透視圖
+          svg.innerHTML = `
+            <!-- 頂面 -->
+            <polygon points="100,25 150,50 100,75 50,50" fill="#81D4FA" stroke="#0288D1" stroke-width="2"/>
+            <!-- 左側面 -->
+            <polygon points="50,50 100,75 100,125 50,100" fill="#4FC3F7" stroke="#0288D1" stroke-width="2"/>
+            <!-- 右側面 -->
+            <polygon points="150,50 100,75 100,125 150,100" fill="#29B6F6" stroke="#0288D1" stroke-width="2"/>
+            <!-- 8 個頂點發光點 -->
+            <circle cx="100" cy="25" r="4" fill="#D32F2F"/>
+            <circle cx="150" cy="50" r="4" fill="#D32F2F"/>
+            <circle cx="100" cy="75" r="4" fill="#D32F2F"/>
+            <circle cx="50" cy="50" r="4" fill="#D32F2F"/>
+            <circle cx="100" cy="125" r="4" fill="#D32F2F"/>
+            <circle cx="50" cy="100" r="4" fill="#D32F2F"/>
+            <circle cx="150" cy="100" r="4" fill="#D32F2F"/>
+            <text x="100" y="145" font-size="13" font-weight="900" fill="#01579B" text-anchor="middle">正方體 (積木)</text>
+          `;
+        } else if (q.type === 'shape_cylinder') {
+          svg.innerHTML = `
+            <ellipse cx="100" cy="35" rx="50" ry="18" fill="#C8E6C9" stroke="#388E3C" stroke-width="2"/>
+            <rect x="50" y="35" width="100" height="75" fill="#E8F5E9"/>
+            <line x1="50" y1="35" x2="50" y2="110" stroke="#388E3C" stroke-width="2"/>
+            <line x1="150" y1="35" x2="150" y2="110" stroke="#388E3C" stroke-width="2"/>
+            <ellipse cx="100" cy="110" rx="50" ry="18" fill="#C8E6C9" stroke="#388E3C" stroke-width="2"/>
+            <text x="100" y="80" font-size="14" font-weight="900" fill="#1B5E20" text-anchor="middle">圓柱體</text>
+          `;
+        } else if (q.type === 'shape_sphere') {
+          svg.innerHTML = `
+            <defs>
+              <radialGradient id="sphereGrad" cx="35%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#FFD54F"/>
+                <stop offset="100%" stop-color="#FF8F00"/>
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="75" r="50" fill="url(#sphereGrad)" stroke="#E65100" stroke-width="3"/>
+            <ellipse cx="100" cy="75" rx="50" ry="14" fill="none" stroke="rgba(255,255,255,0.4)" stroke-dasharray="4,4"/>
+            <text x="100" y="80" font-size="15" font-weight="900" fill="#FFFFFF" text-anchor="middle">球體</text>
+          `;
+        } else if (q.type === 'shape_box') {
+          svg.innerHTML = `
+            <polygon points="100,25 170,45 100,65 30,45" fill="#FFE082" stroke="#FF8F00" stroke-width="2"/>
+            <polygon points="30,45 100,65 100,120 30,100" fill="#FFD54F" stroke="#FF8F00" stroke-width="2"/>
+            <polygon points="170,45 100,65 100,120 170,100" fill="#FFCA28" stroke="#FF8F00" stroke-width="2"/>
+            <text x="100" y="140" font-size="13" font-weight="900" fill="#E65100" text-anchor="middle">長方體 (包裝紙箱)</text>
+          `;
+        }
+        container.appendChild(svg);
+      } else {
+        // 文字情境與單位換算徽章圖案
+        const infoDiv = document.createElement('div');
+        infoDiv.style.textAlign = 'center';
+        infoDiv.innerHTML = `
+          <div style="font-size: 54px; margin-bottom: 8px;">🏗️</div>
+          <div style="font-size: 20px; font-weight: 900; color: #0277BD; background: white; padding: 10px 20px; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            1 公尺 (m) = 100 公分 (cm)
+          </div>
+        `;
+        container.appendChild(infoDiv);
+      }
+    }
+
+    // 載入題目
+    function loadQuestion() {
+      const bank = currentMode === 'basic' ? basicQuestions : advQuestions;
+      currentQ = bank[currentLevel - 1];
+
+      document.getElementById('stageTag').innerText = `${currentMode === 'basic' ? '📏 基礎模式' : '🏗️ 進階模式'} - 第 ${currentLevel} 題`;
+      document.getElementById('avatarIcon').innerText = currentQ.avatar;
+      document.getElementById('targetQuestion').innerText = currentQ.q;
+      document.getElementById('scenarioDesc').innerText = currentQ.desc;
+      document.getElementById('storySpeech').innerText = `小建築師！請看圖思考：${currentQ.q}`;
+
+      document.getElementById('helpContent').innerHTML = `💡 秘訣指引：${currentQ.tip}`;
+      document.getElementById('helpBox').style.display = 'none';
+
+      renderVisualStage(currentQ);
+      renderOptions(currentQ);
+      updateHeader();
+    }
+
+    function toggleHelp() {
+      const box = document.getElementById('helpBox');
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // 渲染選項按鈕
+    function renderOptions(q) {
+      const optContainer = document.getElementById('optionsContainer');
+      optContainer.innerHTML = '';
+
+      q.options.forEach(optText => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerText = optText;
+        btn.onclick = () => selectOption(optText);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    // 選擇答案
+    function selectOption(selected) {
+      const isCorrect = (selected === currentQ.ans);
+      const modal = document.getElementById('feedbackModal');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const desc = document.getElementById('modalDesc');
+      const btn = document.getElementById('modalBtn');
+
+      if (isCorrect) {
+        score += 10;
+        updateHeader();
+
+        if (currentLevel >= totalLevels) {
+          soundFanfare();
+          const modeName = currentMode === 'basic' ? '基礎直尺測量與平面形狀' : '進階公尺公分換算與立體幾何';
+          icon.innerText = "🏆 榮譽皇家建築大師！";
+          title.innerText = `恭喜完成【${modeName}】全 15 關！`;
+          title.style.color = "#FF8F00";
+          desc.innerHTML = `太不可思議了！你建造並測量了所有的施工任務！<br>獲得總分 <strong>${score} / 150</strong> 塊黃金磚！<br>現在你已經是生活度量衡與幾何空間達人了！`;
+
+          if (currentMode === 'basic') {
+            btn.innerText = "挑戰【進階公尺公分與立體形體】15關 🏗️";
+            btn.onclick = () => {
+              modal.style.display = 'none';
+              switchMode('adv');
+            };
+          } else {
+            btn.innerText = "再挑戰一次 🔄";
+            btn.onclick = () => {
+              modal.style.display = 'none';
+              currentLevel = 1;
+              score = 0;
+              loadQuestion();
+            };
+          }
+        } else {
+          soundSuccess();
+          icon.innerText = "🌟 答對了！測量非常精確！";
+          title.innerText = `正確答案：${currentQ.ans}！`;
+          title.style.color = "#2E7D32";
+          desc.innerText = `工匠大師讚美你的眼光：「尺寸分毫不差，可以開始砌磚施工了！」獲得 10 塊磚塊！`;
+          btn.innerText = `進行第 ${currentLevel + 1} 項工程 ➡️`;
+          btn.onclick = () => {
+            modal.style.display = 'none';
+            currentLevel++;
+            loadQuestion();
+          };
+        }
+      } else {
+        soundError();
+        icon.innerText = "🤔 尺寸好像量錯囉！";
+        title.innerText = "再仔細對齊一次刻度吧！";
+        title.style.color = "#D84315";
+        desc.innerHTML = `你選擇了「${selected}」，但這不是最正確的規格喔。<br>快打開「💡 看工匠小筆記」看看起點與刻度秘訣吧！`;
+        btn.innerText = "我再量一次 ↩️";
+        btn.onclick = () => {
+          modal.style.display = 'none';
+        };
+      }
+
+      modal.style.display = 'flex';
+    }
+
+    window.onload = () => {
+      loadQuestion();
+    };
+  </script>
+</body>
+</html>

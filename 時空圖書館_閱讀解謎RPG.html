@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>時空圖書館：失落密碼 - 沉浸式閱讀解謎 RPG</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #12151E;
+      --panel-bg: rgba(26, 32, 48, 0.95);
+      --gold: #F1C40F;
+      --gold-dark: #B7950B;
+      --accent: #E74C3C;
+      --blue: #3498DB;
+      --green: #2ECC71;
+      --text-main: #ECF0F1;
+      --text-muted: #BDC3C7;
+      --border-gold: 2px solid #D4AC0D;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: radial-gradient(circle at center, #1b2838 0%, #0d1117 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+
+    /* 頂部 HUD (RPG 狀態列) */
+    .hud {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--panel-bg);
+      border: var(--border-gold);
+      border-radius: 14px;
+      padding: 12px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .player-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      font-size: 2rem;
+      background: #2C3E50;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--gold);
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .hearts { color: #E74C3C; letter-spacing: 2px; }
+    .magnifiers { color: #3498DB; }
+    .timer { color: var(--gold); font-family: monospace; font-size: 1.3rem; }
+
+    /* 主要解謎操作介面 (左右佈局) */
+    .game-layout {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 768px) {
+      .game-layout { grid-template-columns: 1fr; }
+    }
+
+    /* 左側：羊皮紙歷史文獻 */
+    .scroll-card {
+      background: #2C302E;
+      border-radius: 16px;
+      border: 2px solid #566573;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
+    }
+
+    .scroll-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #4a545e;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+    }
+
+    .scroll-title {
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scroll-content {
+      background: #FDFEFE;
+      color: #212F3D;
+      font-family: 'Noto Serif TC', serif;
+      padding: 18px;
+      border-radius: 10px;
+      line-height: 2.1;
+      font-size: 1.1rem;
+      overflow-y: auto;
+      max-height: 440px;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    .highlight-target {
+      background: #F9E79F;
+      padding: 2px 4px;
+      border-radius: 4px;
+      border-bottom: 2px dashed #B7950B;
+    }
+
+    /* 右側：機關操作台 (Puzzle Console) */
+    .console-card {
+      background: var(--panel-bg);
+      border-radius: 16px;
+      border: var(--border-gold);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    }
+
+    .stage-indicator {
+      font-size: 0.95rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .puzzle-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #FFF;
+      margin-bottom: 16px;
+    }
+
+    .puzzle-desc {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    /* 機關 1：3位數輪盤密碼鎖 */
+    .lock-mechanism {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .dial-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dial-btn {
+      background: #34495E;
+      color: var(--gold);
+      border: 1px solid var(--gold-dark);
+      width: 48px;
+      height: 36px;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .dial-btn:hover { background: #4a627a; }
+
+    .dial-display {
+      width: 64px;
+      height: 70px;
+      background: #000;
+      color: var(--gold);
+      font-size: 2.2rem;
+      font-family: 'Cinzel', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      border: 2px solid #7F8C8D;
+      box-shadow: inset 0 0 10px rgba(241, 196, 15, 0.3);
+    }
+
+    /* 機關 2：卡牌時間軸排序 */
+    .timeline-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .timeline-card {
+      background: #2C3E50;
+      border: 1px solid #4a627a;
+      border-radius: 10px;
+      padding: 12px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+
+    .timeline-card:hover {
+      border-color: var(--gold);
+      transform: translateX(4px);
+    }
+
+    .timeline-card.selected {
+      background: #1B4F72;
+      border-color: #3498DB;
+    }
+
+    /* 機關 3 & 4：選擇按鈕 */
+    .choice-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 14px 0;
+    }
+
+    .choice-btn {
+      background: #212F3D;
+      border: 2px solid #34495E;
+      border-radius: 10px;
+      padding: 14px 16px;
+      color: white;
+      text-align: left;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .choice-btn:hover {
+      background: #2C3E50;
+      border-color: var(--gold);
+    }
+
+    /* 動作操作列 */
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 18px;
+    }
+
+    .btn-action {
+      background: linear-gradient(180deg, #F39C12 0%, #D35400 100%);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
+    }
+
+    .btn-hint {
+      background: transparent;
+      border: 1px solid var(--blue);
+      color: #5DADE2;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-hint:hover { background: rgba(52, 152, 219, 0.1); }
+
+    /* 訊息反饋通知 */
+    .feedback-msg {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      display: none;
+      animation: fadeIn 0.3s;
+    }
+    .feedback-msg.error {
+      background: rgba(231, 76, 60, 0.2);
+      border: 1px solid #E74C3C;
+      color: #F1948A;
+      display: block;
+    }
+    .feedback-msg.hint {
+      background: rgba(52, 152, 219, 0.2);
+      border: 1px solid #3498DB;
+      color: #85C1E9;
+      display: block;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* 結算通關/失敗畫面 */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 999;
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    .modal-box {
+      background: #1A252F;
+      border: 3px solid var(--gold);
+      border-radius: 20px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      padding: 32px 24px;
+      box-shadow: 0 0 40px rgba(241, 196, 15, 0.3);
+    }
+
+    .modal-title { font-size: 2rem; color: var(--gold); margin: 12px 0; font-family: 'Cinzel', serif; }
+  </style>
+</head>
+<body>
+
+  <!-- RPG 頂部 HUD -->
+  <header class="hud">
+    <div class="player-profile">
+      <div class="avatar">🕵️</div>
+      <div>
+        <div style="font-weight: bold; color: var(--gold);">時空解密探員</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">目標：奪回失落的法老石板</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div title="生命值">❤️ <span id="hpDisplay">♥♥♥</span></div>
+      <div title="解密放大鏡道具">🔍 <span id="hintCount">2</span> 個</div>
+      <div class="timer" title="逃脫倒數計時">⏱️ <span id="timeDisplay">05:00</span></div>
+    </div>
+  </header>
+
+  <main class="game-layout">
+
+    <!-- 左側：閱讀文本卷軸 -->
+    <section class="scroll-card">
+      <div class="scroll-header">
+        <div class="scroll-title">📜 埃及神廟失落日記（殘卷 #702）</div>
+        <button onclick="readAloudText()" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;" title="語音朗讀文獻">🔊</button>
+      </div>
+      <div class="scroll-content" id="scrollText">
+        公元前300年，尼羅河畔的綠洲神廟中，守護神貓「巴斯提特」在月圓之夜收到了祭司的警告：黑沙暴將在黃昏時分襲擊神廟。<br><br>
+        祭司在石板上記下：『第一批祭品是<strong style="color:#B7950B;">3</strong>個金蘋果，藏在東方獅身像下；第二批是<strong style="color:#2980B9;">8</strong>顆青金石，藏在西方水池旁；最後由<strong style="color:#8E44AD;">5</strong>位皇家守衛共同護送至地下密室。』<br><br>
+        黃昏時分，狂風怒吼，沙暴如期襲來，人群慌忙四散逃跑。然而，神貓沒有跟隨人群離開，牠立刻咬住沉重的神廟銅鑰匙，果斷躍入積水的地下暗道，用盡全力關閉了防水閘門。<br><br>
+        雖然神貓一身珍貴的金色披風被泥漿浸透弄髒了，但神廟內收藏的數千卷古代羊皮紙文獻卻因此完好無損地保存了下來。<br><br>
+        後世學者讚嘆道：「真正的勇氣不是身上佩戴著多少武器，而是在危急時刻，甘願放下個人的榮辱，做出最正確的守護決定。」
+      </div>
+    </section>
+
+    <!-- 右側：機關操作台 (動態渲染不同題型) -->
+    <section class="console-card">
+      <div class="stage-indicator" id="stageTag">STAGE 1 / 4 • 數值擷取解鎖</div>
+      <h2 class="puzzle-title" id="puzzleTitle">機關一：黃金封印密碼盤</h2>
+      <div class="puzzle-desc" id="puzzleDesc">
+        石門上刻著神秘公式：密碼為【金蘋果數量】+【青金石數量】+【皇家守衛人數】。請仔細閱讀左側文獻，轉動密碼盤解開石門！
+      </div>
+
+      <!-- 動態謎題區 -->
+      <div id="puzzleBody">
+        <!-- 機關 1 預設：密碼滾輪 -->
+        <div class="lock-mechanism">
+          <div class="dial-col">
+            <button class="dial-btn" onclick="adjustDial(0, 1)">▲</button>
+            <div class="dial-display" id="d0">0</div>
+            <button class="dial-btn" onclick="adjustDial(0, -1)">▼</button>
+          </div>
+          <div class="dial-col">
+            <button class="dial-btn" onclick="adjustDial(1, 1)">▲</button>
+            <div class="dial-display" id="d1">0</div>
+            <button class="dial-btn" onclick="adjustDial(1, -1)">▼</button>
+          </div>
+          <div class="dial-col">
+            <button class="dial-btn" onclick="adjustDial(2, 1)">▲</button>
+            <div class="dial-display" id="d2">0</div>
+            <button class="dial-btn" onclick="adjustDial(2, -1)">▼</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 錯誤/提示反饋區 -->
+      <div class="feedback-msg" id="feedbackBox"></div>
+
+      <!-- 操作底部 -->
+      <div class="actions">
+        <button class="btn-hint" onclick="useHint()">🔍 使用線索道具</button>
+        <button class="btn-action" onclick="submitCurrentPuzzle()">確認解鎖 ➔</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 通關/失敗彈窗 -->
+  <div class="modal-overlay" id="endModal">
+    <div class="modal-box">
+      <div style="font-size: 4rem;" id="modalIcon">🏆</div>
+      <h3 class="modal-title" id="modalTitle">任務達成！</h3>
+      <p id="modalMsg" style="color: var(--text-muted); font-size: 1.15rem; line-height: 1.8; margin-bottom: 24px;">
+        你成功運用細緻的閱讀理解能力，破解了所有時空謎題，守護了古代文獻！
+      </p>
+      <button class="btn-action" onclick="location.reload()">重新挑戰挑戰全速紀錄</button>
+    </div>
+  </div>
+
+  <script>
+    // 遊戲狀態與關卡資料
+    let hp = 3;
+    let hintItems = 2;
+    let timerSeconds = 300; // 5分鐘限制
+    let currentStage = 0;
+    let dials = [0, 0, 0];
+    let userTimelineOrder = [];
+
+    // 關卡題目資料庫
+    const stages = [
+      {
+        type: "dials",
+        tag: "STAGE 1 / 4 • 訊息擷取與多重跨段整併",
+        title: "機關一：黃金封印密碼鎖",
+        desc: "石門上刻著神秘公式：密碼為【金蘋果數量】+【青金石數量】+【皇家守衛人數】。請在左側文獻中精準檢索這三個數值，轉動滾輪解鎖！",
+        correct: "385",
+        hint: "請閱讀文獻第二段：祭司在石板上記下了金蘋果(3)、青金石(8)和守衛(5)的確切數字！",
+        highlight: "3個金蘋果"
+      },
+      {
+        type: "timeline",
+        tag: "STAGE 2 / 4 • 段落結構與事件因果排序",
+        title: "機關二：時間之河因果拼圖",
+        desc: "古代時鐘被擾亂了！請依故事發生的【真實時間先後順序】，依序點擊下方事件進行排列：",
+        cards: [
+          { id: "A", text: "神貓咬住鑰匙跳入地下暗道，關閉防水閘門" },
+          { id: "B", text: "祭司在月圓之夜收到黑沙暴警告並刻下石板" },
+          { id: "C", text: "後世學者讚嘆神貓具有最真正的勇氣" },
+          { id: "D", text: "黃昏狂風怒吼，沙暴來襲，人群慌忙四散" }
+        ],
+        correct: ["B", "D", "A", "C"],
+        hint: "最先發生的是『祭司收到警告』(B)，接著『沙暴來襲逃跑』(D)，神貓才『關閉閘門』(A)，最後是『後世評價』(C)。",
+        highlight: "月圓之夜"
+      },
+      {
+        type: "choice",
+        tag: "STAGE 3 / 4 • 深層動機與隱喻推論",
+        title: "機關三：神貓的心靈天平",
+        desc: "石板浮現出貓頭鷹守衛的質問：『神貓明明擁有昂貴美麗的金色披風，為什麼寧願弄髒也不跟隨人群逃走？』",
+        choices: [
+          { text: "A. 因為神貓跑得太慢，跟不上人群的腳步", correct: false },
+          { text: "B. 因為牠深知守護數千卷歷史文獻的價值，遠遠高於自己的外表與安危", correct: true },
+          { text: "C. 因為水閘門後面藏著神貓最喜歡吃的美食", correct: false }
+        ],
+        hint: "請看第四段：雖然披風弄髒了，但『數千卷文獻完好無損』，學者讚嘆的是牠甘願放下的情操！",
+        highlight: "完好無損地保存了下來"
+      },
+      {
+        type: "choice",
+        tag: "STAGE 4 / 4 • 高階思考與哲理生活評鑑",
+        title: "終極機關：真理逃脫之門",
+        desc: "學者所說的『真正的勇氣不是身上佩戴著多少武器，而是在危急時刻做出了最正確的守護決定』，最符合以下哪位現代同學的行為？",
+        choices: [
+          { text: "A. 小明在操場上遇到大狗汪汪叫，拿著大木棍追打大狗以展示威風", correct: false },
+          { text: "B. 班上打掃時打破花瓶，小華雖然怕被罵，但主動留下保護現場碎片防止同學踩傷並報告老師", correct: true },
+          { text: "C. 小美每次考試都帶五支幸運原子筆，認為筆越多考得越好", correct: false }
+        ],
+        hint: "文中的勇氣是指『不靠武器防身，而在危難中承擔責任、保護珍貴事物』的抉擇。",
+        highlight: "真正的勇氣不是擁有多少武器"
+      }
+    ];
+
+    // 初始化倒數計時器
+    setInterval(() => {
+      if (timerSeconds > 0) {
+        timerSeconds--;
+        const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+        const secs = String(timerSeconds % 60).padStart(2, '0');
+        document.getElementById("timeDisplay").textContent = `${mins}:${secs}`;
+      } else {
+        triggerGameOver("時間耗盡！時空裂縫已關閉...");
+      }
+    }, 1000);
+
+    function updateHUD() {
+      let heartsStr = "";
+      for (let i = 0; i < 3; i++) {
+        heartsStr += i < hp ? "❤️" : "🖤";
+      }
+      document.getElementById("hpDisplay").innerHTML = heartsStr;
+      document.getElementById("hintCount").textContent = hintItems;
+    }
+
+    function renderStage() {
+      const s = stages[currentStage];
+      document.getElementById("stageTag").textContent = s.tag;
+      document.getElementById("puzzleTitle").textContent = s.title;
+      document.getElementById("puzzleDesc").textContent = s.desc;
+      const box = document.getElementById("feedbackBox");
+      box.className = "feedback-msg";
+      box.textContent = "";
+
+      const body = document.getElementById("puzzleBody");
+      body.innerHTML = "";
+
+      if (s.type === "dials") {
+        dials = [0, 0, 0];
+        body.innerHTML = `
+          <div class="lock-mechanism">
+            <div class="dial-col">
+              <button class="dial-btn" onclick="adjustDial(0, 1)">▲</button>
+              <div class="dial-display" id="d0">0</div>
+              <button class="dial-btn" onclick="adjustDial(0, -1)">▼</button>
+            </div>
+            <div class="dial-col">
+              <button class="dial-btn" onclick="adjustDial(1, 1)">▲</button>
+              <div class="dial-display" id="d1">0</div>
+              <button class="dial-btn" onclick="adjustDial(1, -1)">▼</button>
+            </div>
+            <div class="dial-col">
+              <button class="dial-btn" onclick="adjustDial(2, 1)">▲</button>
+              <div class="dial-display" id="d2">0</div>
+              <button class="dial-btn" onclick="adjustDial(2, -1)">▼</button>
+            </div>
+          </div>
+        `;
+      } else if (s.type === "timeline") {
+        userTimelineOrder = [];
+        let html = `<div style="font-size:0.95rem; color:#85C1E9; margin-bottom:8px;">點選下方卡片依序排列（已選：<span id="orderPreview">無</span>）：</div><div class="timeline-slots">`;
+        s.cards.forEach(c => {
+          html += `<div class="timeline-card" id="card-${c.id}" onclick="selectTimelineCard('${c.id}')">
+            <span><strong>【事件 ${c.id}】</strong> ${c.text}</span>
+            <span id="badge-${c.id}" style="color:var(--gold); font-weight:bold;"></span>
+          </div>`;
+        });
+        html += `</div><button onclick="resetTimeline()" style="background:none; border:none; color:#BDC3C7; cursor:pointer; text-decoration:underline;">↺ 重設排序</button>`;
+        body.innerHTML = html;
+      } else if (s.type === "choice") {
+        let html = `<div class="choice-grid">`;
+        s.choices.forEach((c, idx) => {
+          html += `<button class="choice-btn" onclick="handleChoice(${idx}, ${c.correct})">${c.text}</button>`;
+        });
+        html += `</div>`;
+        body.innerHTML = html;
+      }
+    }
+
+    // 機關 1 滾輪控制
+    function adjustDial(idx, delta) {
+      dials[idx] = (dials[idx] + delta + 10) % 10;
+      document.getElementById(`d${idx}`).textContent = dials[idx];
+      playBeep(400);
+    }
+
+    // 機關 2 時間軸控制
+    function selectTimelineCard(id) {
+      if (userTimelineOrder.includes(id)) return;
+      userTimelineOrder.push(id);
+      document.getElementById(`card-${id}`).classList.add("selected");
+      document.getElementById(`badge-${id}`).textContent = `第 ${userTimelineOrder.length} 步`;
+      document.getElementById("orderPreview").textContent = userTimelineOrder.join(" ➔ ");
+      playBeep(520);
+    }
+
+    function resetTimeline() {
+      userTimelineOrder = [];
+      document.querySelectorAll(".timeline-card").forEach(el => {
+        el.classList.remove("selected");
+      });
+      document.querySelectorAll("[id^='badge-']").forEach(el => el.textContent = "");
+      document.getElementById("orderPreview").textContent = "無";
+    }
+
+    // 機關 3 & 4 選擇處理
+    let selectedChoiceCorrect = false;
+    function handleChoice(idx, isCorrect) {
+      document.querySelectorAll(".choice-btn").forEach((b, i) => {
+        b.style.borderColor = i === idx ? (isCorrect ? "#2ECC71" : "#E74C3C") : "#34495E";
+      });
+      selectedChoiceCorrect = isCorrect;
+      playBeep(isCorrect ? 600 : 250);
+    }
+
+    // 送出答案驗證
+    function submitCurrentPuzzle() {
+      const s = stages[currentStage];
+      let isSuccess = false;
+
+      if (s.type === "dials") {
+        const val = dials.join("");
+        isSuccess = (val === s.correct);
+      } else if (s.type === "timeline") {
+        if (userTimelineOrder.length < 4) {
+          showFeedback("請完整選擇 4 個事件的時間順序！", "error");
+          return;
+        }
+        isSuccess = (userTimelineOrder.join("") === s.correct.join(""));
+      } else if (s.type === "choice") {
+        isSuccess = selectedChoiceCorrect;
+      }
+
+      if (isSuccess) {
+        showFeedback("✅ 解密成功！機關轟然開啟！", "hint");
+        playVictoryJingle();
+        setTimeout(() => {
+          currentStage++;
+          if (currentStage < stages.length) {
+            renderStage();
+          } else {
+            showEndModal(true);
+          }
+        }, 1200);
+      } else {
+        hp--;
+        updateHUD();
+        playHurtSound();
+        showFeedback("❌ 機關發出暗箭！答案不正確，失去 1 點生命值！", "error");
+        if (hp <= 0) {
+          triggerGameOver("生命值耗盡！探險隊被迫撤離神廟...");
+        }
+      }
+    }
+
+    // 道具使用
+    function useHint() {
+      if (hintItems <= 0) {
+        showFeedback("⚠️ 放大鏡道具已耗盡！請倚靠自身推理！", "error");
+        return;
+      }
+      hintItems--;
+      updateHUD();
+      const s = stages[currentStage];
+      showFeedback(`💡 【探員筆記指引】：${s.hint}`, "hint");
+    }
+
+    function showFeedback(text, type) {
+      const box = document.getElementById("feedbackBox");
+      box.textContent = text;
+      box.className = `feedback-msg ${type}`;
+    }
+
+    function triggerGameOver(reason) {
+      showEndModal(false, reason);
+    }
+
+    function showEndModal(isWin, customMsg) {
+      const modal = document.getElementById("endModal");
+      const icon = document.getElementById("modalIcon");
+      const title = document.getElementById("modalTitle");
+      const msg = document.getElementById("modalMsg");
+
+      if (isWin) {
+        icon.textContent = "🏆";
+        title.textContent = "傳奇時空守護者！";
+        msg.innerHTML = `你展現了超凡的<strong>高階閱讀素養</strong>與<strong>邏輯推理力</strong>！<br>成功在限時內解開 4 大機關，完整回收並守護了失落的法老石板與歷史卷軸！`;
+      } else {
+        icon.textContent = "💀";
+        title.textContent = "任務受挫！";
+        msg.textContent = customMsg || "未能解開全部機關，但失敗是探險家的基石。";
+      }
+      modal.classList.add("show");
+    }
+
+    // 簡易 Web Audio 音效產生器
+    function playBeep(freq) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.15);
+      } catch(e) {}
+    }
+
+    function playHurtSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(80, ctx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.25);
+      } catch(e) {}
+    }
+
+    function playVictoryJingle() {
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+        setTimeout(() => playBeep(freq), idx * 100);
+      });
+    }
+
+    // TTS 語音
+    function readAloudText() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const text = document.getElementById("scrollText").innerText;
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.lang = 'zh-TW';
+        utt.rate = 0.9;
+        window.speechSynthesis.speak(utt);
+      }
+    }
+
+    // 啟動首關
+    updateHUD();
+    renderStage();
+  </script>
+</body>
+</html>

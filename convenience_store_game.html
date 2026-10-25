@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>森林便利超商 - 二年級生活數學小店長</title>
+  <style>
+    :root {
+      --primary: #FF7043;
+      --primary-dark: #E64A19;
+      --secondary: #4CAF50;
+      --secondary-dark: #388E3C;
+      --accent: #FFA726;
+      --bg: #FFF8E7;
+      --panel-bg: #FFFFFF;
+      --text: #37474F;
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+      --border-r: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+      font-family: 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    /* 頂部狀態列 */
+    header {
+      width: 100%;
+      max-width: 920px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .title-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #E65100;
+    }
+
+    .title-area .icon {
+      font-size: 32px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .stat-badge {
+      background: #FFF3E0;
+      color: #E65100;
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 2px solid #FFE0B2;
+    }
+
+    /* 模式切換按鈕區 */
+    .mode-selector {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mode-btn {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 900;
+      border: 3px solid transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: white;
+      color: #546E7A;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn .sub-text {
+      font-size: 13px;
+      font-weight: normal;
+      color: #78909C;
+    }
+
+    .mode-btn.active-basic {
+      border-color: #4CAF50;
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .mode-btn.active-basic .sub-text {
+      color: #388E3C;
+      font-weight: bold;
+    }
+
+    .mode-btn.active-adv {
+      border-color: #FF9800;
+      background: #FFF3E0;
+      color: #E65100;
+    }
+
+    .mode-btn.active-adv .sub-text {
+      color: #D84315;
+      font-weight: bold;
+    }
+
+    /* 進度條容器 */
+    .progress-bar-container {
+      width: 100%;
+      max-width: 920px;
+      background: #E0E0E0;
+      border-radius: 12px;
+      height: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #FFA726, #4CAF50);
+      width: 6.66%;
+      transition: width 0.3s ease;
+    }
+
+    /* 遊戲主容器 */
+    .game-container {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .game-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel-bg);
+      border-radius: var(--border-r);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* 顧客與收銀區 */
+    .stage-tag {
+      align-self: flex-start;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    .tag-basic { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+    .tag-adv { background: #EDE7F6; color: #512DA8; border: 1px solid #D1C4E9; }
+
+    .customer-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #F1F8E9;
+      border-radius: 16px;
+      padding: 12px;
+      border: 2px dashed #AED581;
+      margin-bottom: 14px;
+    }
+
+    .avatar {
+      font-size: 52px;
+      animation: float 2.5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .speech-bubble {
+      background: white;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 16px;
+      color: #33691E;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .order-summary {
+      background: #FAFAFA;
+      border: 2px solid #ECEFF1;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .order-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .item-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .target-highlight {
+      color: #D84315;
+      font-size: 24px;
+    }
+
+    .math-help-box {
+      margin-top: 10px;
+      background: #FFF9C4;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #795548;
+      display: none;
+      border-left: 5px solid #FBC02D;
+      line-height: 1.5;
+    }
+
+    .help-btn {
+      background: #FFF3E0;
+      color: #E65100;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+      align-self: flex-start;
+      transition: all 0.2s;
+    }
+
+    .help-btn:hover {
+      background: #FFE0B2;
+    }
+
+    /* 找零操作與托盤區 */
+    .tray-section {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .tray-title {
+      font-size: 17px;
+      font-weight: bold;
+      color: #455A64;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tray-amount {
+      font-size: 22px;
+      font-weight: 900;
+      color: #2E7D32;
+    }
+
+    /* 找零置物盤 */
+    .change-tray {
+      background: #ECEFF1;
+      border: 3px dashed #B0BEC5;
+      border-radius: 16px;
+      min-height: 130px;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 8px;
+      margin-bottom: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .tray-empty-hint {
+      color: #90A4AE;
+      font-size: 15px;
+      font-weight: bold;
+      margin: auto;
+      text-align: center;
+    }
+
+    /* 貨幣收納盒 */
+    .money-bank {
+      background: #CFD8DC;
+      padding: 12px;
+      border-radius: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .money-btn {
+      background: white;
+      border: none;
+      border-radius: 14px;
+      padding: 8px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .money-btn:active {
+      transform: scale(0.92);
+      box-shadow: 0 2px 3px rgba(0,0,0,0.15);
+    }
+
+    /* 擬真貨幣造型 */
+    .bill-500 {
+      width: 70px;
+      height: 38px;
+      background: #8E6E53;
+      color: #FFF;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      border: 1px solid #6D4C41;
+    }
+
+    .bill-100 {
+      width: 68px;
+      height: 36px;
+      background: #E53935;
+      color: #FFF;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      border: 1px solid #C62828;
+    }
+
+    .coin-50 {
+      width: 42px;
+      height: 42px;
+      background: radial-gradient(circle, #FDD835, #F57F17);
+      color: #5D4037;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 15px;
+      border: 2px solid #E65100;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .coin-10 {
+      width: 38px;
+      height: 38px;
+      background: radial-gradient(circle, #E0E0E0, #9E9E9E);
+      color: #37474F;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 14px;
+      border: 2px solid #757575;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .coin-5 {
+      width: 34px;
+      height: 34px;
+      background: radial-gradient(circle, #EEEEEE, #BDBDBD);
+      color: #424242;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      border: 2px solid #9E9E9E;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .coin-1 {
+      width: 30px;
+      height: 30px;
+      background: radial-gradient(circle, #D7CCC8, #A1887F);
+      color: #3E2723;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 12px;
+      border: 2px solid #8D6E63;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* 托盤內物品動畫與移除 */
+    .tray-item {
+      position: relative;
+      cursor: pointer;
+      animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .tray-item:hover::after {
+      content: '✕';
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #D32F2F;
+      color: white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 按鈕操作區 */
+    .action-group {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      padding: 13px 18px;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: 900;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-clear {
+      background: #ECEFF1;
+      color: #546E7A;
+    }
+
+    .btn-clear:hover {
+      background: #CFD8DC;
+    }
+
+    .btn-submit {
+      background: #4CAF50;
+      color: white;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-submit:hover {
+      background: #388E3C;
+      transform: translateY(-2px);
+    }
+
+    /* 回饋彈窗 Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: white;
+      padding: 30px 24px;
+      border-radius: 26px;
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+      animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalPop {
+      0% { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-icon {
+      font-size: 58px;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #263238;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 17px;
+      color: #546E7A;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .btn-next {
+      background: #FF9800;
+      color: white;
+      width: 100%;
+      padding: 14px;
+      font-size: 19px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+    }
+
+    .btn-next:hover {
+      background: #F57C00;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部資訊列 -->
+  <header>
+    <div class="title-area">
+      <span class="icon">🏪</span>
+      <span id="gameTitle">森林便利超商小店長</span>
+    </div>
+    <div class="stats">
+      <div class="stat-badge">⭐ 金幣: <span id="scoreText">0</span></div>
+      <div class="stat-badge">🎯 題目: <span id="levelText">1 / 15</span></div>
+    </div>
+  </header>
+
+  <!-- 模式切換按鈕區 -->
+  <div class="mode-selector">
+    <button class="mode-btn active-basic" id="btnModeBasic" onclick="switchGameMode('basic')">
+      <span>🌱 基礎二位數挑戰 (全15題)</span>
+      <span class="sub-text">10~100元以內生活找零 (整十與退位)</span>
+    </button>
+    <button class="mode-btn" id="btnModeAdv" onclick="switchGameMode('adv')">
+      <span>🚀 進階三位數挑戰 (全15題)</span>
+      <span class="sub-text">100~1000元以內大額直式退位找零</span>
+    </button>
+  </div>
+
+  <!-- 進度條 -->
+  <div class="progress-bar-container">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- 遊戲主體 -->
+  <main class="game-container">
+    
+    <!-- 左側：收銀台與客人 -->
+    <section class="card">
+      <div class="stage-tag tag-basic" id="stageTag">基礎二位數模式</div>
+
+      <!-- 客人問候 -->
+      <div class="customer-area">
+        <div class="avatar" id="customerAvatar">🐱</div>
+        <div class="speech-bubble" id="customerSpeech">店長您好！我要結帳，請幫我算算要找多少錢～</div>
+      </div>
+
+      <!-- 帳單明細 -->
+      <div class="order-summary">
+        <div class="order-row">
+          <span class="item-tag" id="itemName">🥪 美味三明治</span>
+          <span id="itemPriceText">$ 35 元</span>
+        </div>
+        <hr style="border: none; border-top: 1px dashed #CFD8DC;">
+        <div class="order-row">
+          <span>客人付了：</span>
+          <span style="color: #1976D2;" id="payAmountText">$ 50 元</span>
+        </div>
+        <div class="order-row" style="background: #FFF3E0; padding: 8px 12px; border-radius: 12px; margin-top: 4px;">
+          <span>應找回金額：</span>
+          <span class="target-highlight" id="targetFormula">? 元</span>
+        </div>
+
+        <button class="help-btn" onclick="toggleHelp()">💡 看解題提示</button>
+        <div class="math-help-box" id="helpBox">
+          <strong>計算小幫手：</strong><br>
+          <span id="helpContent">客人付的錢 - 商品價格 = 找回的錢。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右側：找零操作托盤與錢幣庫 -->
+    <section class="card tray-section">
+      <div class="tray-title">
+        <span>🪙 找零置物盤 (點擊盤中錢幣可放回)</span>
+        <span class="tray-amount">目前：$<span id="currentTrayTotal">0</span></span>
+      </div>
+
+      <!-- 放置已選錢幣的托盤 -->
+      <div class="change-tray" id="trayContainer" onclick="handleTrayClick(event)">
+        <div class="tray-empty-hint" id="emptyHint">點擊下方硬幣或紙鈔放進盤子裡找給客人</div>
+      </div>
+
+      <!-- 錢幣庫 -->
+      <div class="money-bank">
+        <button class="money-btn" onclick="addMoney(500)">
+          <div class="bill-500">500</div>
+          <span>+500元</span>
+        </button>
+        <button class="money-btn" onclick="addMoney(100)">
+          <div class="bill-100">100</div>
+          <span>+100元</span>
+        </button>
+        <button class="money-btn" onclick="addMoney(50)">
+          <div class="coin-50">50</div>
+          <span>+50元</span>
+        </button>
+        <button class="money-btn" onclick="addMoney(10)">
+          <div class="coin-10">10</div>
+          <span>+10元</span>
+        </button>
+        <button class="money-btn" onclick="addMoney(5)">
+          <div class="coin-5">5</div>
+          <span>+5元</span>
+        </button>
+        <button class="money-btn" onclick="addMoney(1)">
+          <div class="coin-1">1</div>
+          <span>+1元</span>
+        </button>
+      </div>
+
+      <!-- 操作按鈕 -->
+      <div class="action-group">
+        <button class="btn btn-clear" onclick="clearTray()">🔄 重選</button>
+        <button class="btn btn-submit" onclick="submitChange()">✅ 找錢給客人</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 彈窗回饋 Modal -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="modal-card">
+      <div class="modal-icon" id="modalIcon">🎉</div>
+      <div class="modal-title" id="modalTitle">找零完全正確！</div>
+      <div class="modal-desc" id="modalDesc">你算得太棒了！客人開心地收下了零錢。</div>
+      <button class="btn-next" id="modalBtn" onclick="nextQuestion()">下一位客人 ➡️</button>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'basic'; // 'basic' 或 'adv'
+    let score = 0;
+    let currentLevel = 1;
+    const totalLevels = 15;
+    let currentTray = [];
+
+    // 15 位可愛小動物客人
+    const customerList = [
+      { avatar: "🐱", speech: "店長好！我買了美味的早點，請幫我結帳～" },
+      { avatar: "🐶", speech: "汪汪！運動完好口渴，買了一瓶飲品！" },
+      { avatar: "🐰", speech: "這是今天下午茶的點心，謝謝小店長！" },
+      { avatar: "🐿️", speech: "我用自己存的零用錢買麵包，麻煩您囉～" },
+      { avatar: "🦔", speech: "小店長您好，這個文具好實用，我要買它！" },
+      { avatar: "🐻", speech: "早安店長！我買了香甜的點心要帶回家～" },
+      { avatar: "🦊", speech: "這件商品好漂亮，我拿大張鈔票請找錢～" },
+      { avatar: "🐨", speech: "慢吞吞～買了生活用品，請店長慢慢算～" },
+      { avatar: "🐸", speech: "呱呱！夏天快到了，買了消暑點心！" },
+      { avatar: "🐼", speech: "我選了最愛吃的特產點心，麻煩小店長找零！" },
+      { avatar: "🦁", speech: "吼～買了最喜歡的高級學習用具！" },
+      { avatar: "🐯", speech: "我買了超酷的玩具，請幫我結帳算算看！" },
+      { avatar: "🐵", speech: "吱吱！這本故事書太好看啦，迫不及待想看！" },
+      { avatar: "🦉", speech: "工作辛苦了！我買了夜間必備的裝備。" },
+      { avatar: "🦄", speech: "最後一位客人是我！感謝小店長今天為大家服務！" }
+    ];
+
+    // 【題庫一】基礎二位數題庫（專注 100 以內加減與找零，共 15 題）
+    const basicQuestions = [
+      { item: "🥪 美味三明治", price: 35, pay: 50, tag: "二位數：50以內", tip: "50 - 35 = 15 元 (1個10元 + 1個5元)" },
+      { item: "🥛 鮮純牛奶", price: 20, pay: 50, tag: "二位數：50以內整十", tip: "50 - 20 = 30 元 (3個10元)" },
+      { item: "🍪 草莓餅乾", price: 15, pay: 20, tag: "二位數：20以內", tip: "20 - 15 = 5 元 (1個5元)" },
+      { item: "🥐 栗子麵包", price: 42, pay: 50, tag: "二位數：50以內退位", tip: "50 - 42 = 8 元 (1個5元 + 3個1元)" },
+      { item: "✏️ 造型鉛筆", price: 8, pay: 20, tag: "二位數：20以內退位", tip: "20 - 8 = 12 元 (1個10元 + 2個1元)" },
+      { item: "🍰 蜂蜜蛋糕", price: 65, pay: 100, tag: "二位數：百元退位", tip: "100 - 65 = 35 元 (3個10元 + 1個5元)" },
+      { item: "🎨 彩色黏土", price: 78, pay: 100, tag: "二位數：百元退位", tip: "100 - 78 = 22 元 (2個10元 + 2個1元)" },
+      { item: "📒 著色塗鴉本", price: 45, pay: 100, tag: "二位數：百元減法", tip: "100 - 45 = 55 元 (1個50元 + 1個5元)" },
+      { item: "🍦 檸檬冰棒", price: 23, pay: 50, tag: "二位數：50以內退位", tip: "50 - 23 = 27 元 (2個10元 + 1個5元 + 2個1元)" },
+      { item: "🍘 特級竹筍餅", price: 84, pay: 100, tag: "二位數：百元退位", tip: "100 - 84 = 16 元 (1個10元 + 1個5元 + 1個1元)" },
+      { item: "📐 幾何三角板", price: 32, pay: 50, tag: "二位數：50以內退位", tip: "50 - 32 = 18 元 (1個10元 + 1個5元 + 3個1元)" },
+      { item: "🍎 蜜蘋果兩顆", price: 58, pay: 100, tag: "二位數：百元退位", tip: "100 - 58 = 42 元 (4個10元 + 2個1元)" },
+      { item: "🧃 葡萄果汁", price: 28, pay: 50, tag: "二位數：50以內退位", tip: "50 - 28 = 22 元 (2個10元 + 2個1元)" },
+      { item: "🥢 環保餐具組", price: 62, pay: 100, tag: "二位數：百元退位", tip: "100 - 62 = 38 元 (3個10元 + 1個5元 + 3個1元)" },
+      { item: "🎁 森林驚喜包", price: 89, pay: 100, tag: "二位數：百元退位壓軸", tip: "100 - 89 = 11 元 (1個10元 + 1個1元)" }
+    ];
+
+    // 【題庫二】進階三位數題庫（專注 100~1000 以內三位數退位加減，共 15 題）
+    const advQuestions = [
+      { item: "🖌️ 高級水彩筆組", price: 125, pay: 200, tag: "三位數：200以內退位", tip: "200 - 125 = 75 元 (1個50元 + 2個10元 + 1個5元)" },
+      { item: "🔦 森林手電筒", price: 168, pay: 200, tag: "三位數：200以內退位", tip: "200 - 168 = 32 元 (3個10元 + 2個1元)" },
+      { item: "🦕 恐龍百科書", price: 285, pay: 500, tag: "三位數：500以內退位", tip: "500 - 285 = 215 元 (2張100元 + 1個10元 + 1個5元)" },
+      { item: "🏎️ 發條小賽車", price: 340, pay: 500, tag: "三位數：500以內退位", tip: "500 - 340 = 160 元 (1張100元 + 1個50元 + 1個10元)" },
+      { item: "🎒 森林雙肩背包", price: 395, pay: 500, tag: "三位數：500以內退位", tip: "500 - 395 = 105 元 (1張100元 + 1個5元)" },
+      { item: "🎧 兒童音樂耳機", price: 430, pay: 500, tag: "三位數：500以內退位", tip: "500 - 430 = 70 元 (1個50元 + 2個10元)" },
+      { item: "⚽ 充氣小足球組", price: 276, pay: 500, tag: "三位數：十位與個位雙退位", tip: "500 - 276 = 224 元 (2張100元 + 2個10元 + 4個1元)" },
+      { item: "⏰ 魔法咕咕鐘", price: 458, pay: 500, tag: "三位數：500以內精熟", tip: "500 - 458 = 42 元 (4個10元 + 2個1元)" },
+      { item: "🔭 迷你天文望遠鏡", price: 720, pay: 1000, tag: "三位數：千元大鈔找零", tip: "1000 - 720 = 280 元 (2張100元 + 1個50元 + 3個10元)" },
+      { item: "🏰 積木城堡禮盒", price: 650, pay: 1000, tag: "三位數：千元大鈔找零", tip: "1000 - 650 = 350 元 (3張100元 + 1個50元)" },
+      { item: "🧸 巨型小熊抱枕", price: 588, pay: 1000, tag: "三位數：千元雙重退位", tip: "1000 - 588 = 412 元 (4張100元 + 1個10元 + 2個1元)" },
+      { item: "🛹 兒童安全滑板", price: 815, pay: 1000, tag: "三位數：千元大鈔退位", tip: "1000 - 815 = 185 元 (1張100元 + 1個50元 + 3個10元 + 1個5元)" },
+      { item: "🎮 益智桌遊大全套", price: 462, pay: 600, tag: "三位數：整百付款(600元)", tip: "600 - 462 = 138 元 (1張100元 + 3個10元 + 1個5元 + 3個1元)" },
+      { item: "📸 兒童拍立得相機", price: 749, pay: 1000, tag: "三位數：千元精熟挑戰", tip: "1000 - 749 = 251 元 (2張100元 + 1個50元 + 1個1元)" },
+      { item: "🚀 星際機器人模型", price: 836, pay: 1000, tag: "三位數：千元壓軸大關卡", tip: "1000 - 836 = 164 元 (1張100元 + 1個50元 + 1個10元 + 4個1元)" }
+    ];
+
+    let currentQ = {};
+
+    // Web Audio API 音效
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playTone(freq, type = 'sine', duration = 0.15) {
+      try {
+        if (!audioCtx) audioCtx = new AudioCtx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function soundCoin() {
+      playTone(987, 'sine', 0.08);
+      setTimeout(() => playTone(1318, 'sine', 0.12), 60);
+    }
+
+    function soundSuccess() {
+      playTone(523, 'triangle', 0.1);
+      setTimeout(() => playTone(659, 'triangle', 0.1), 100);
+      setTimeout(() => playTone(783, 'triangle', 0.1), 200);
+      setTimeout(() => playTone(1046, 'triangle', 0.25), 300);
+    }
+
+    function soundError() {
+      playTone(260, 'sawtooth', 0.2);
+    }
+
+    function soundFanfare() {
+      const notes = [523, 659, 784, 1046, 784, 1046];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => playTone(freq, 'triangle', 0.2), idx * 150);
+      });
+    }
+
+    // 切換模式
+    function switchGameMode(mode) {
+      currentMode = mode;
+      currentLevel = 1;
+      score = 0;
+
+      const btnBasic = document.getElementById('btnModeBasic');
+      const btnAdv = document.getElementById('btnModeAdv');
+
+      if (mode === 'basic') {
+        btnBasic.className = 'mode-btn active-basic';
+        btnAdv.className = 'mode-btn';
+        document.getElementById('stageTag').className = 'stage-tag tag-basic';
+      } else {
+        btnBasic.className = 'mode-btn';
+        btnAdv.className = 'mode-btn active-adv';
+        document.getElementById('stageTag').className = 'stage-tag tag-adv';
+      }
+
+      loadQuestion();
+    }
+
+    function updateHeader() {
+      document.getElementById('scoreText').innerText = score;
+      document.getElementById('levelText').innerText = `${currentLevel} / ${totalLevels}`;
+      const percent = (currentLevel / totalLevels) * 100;
+      document.getElementById('progressFill').style.width = `${percent}%`;
+    }
+
+    function loadQuestion() {
+      const bank = currentMode === 'basic' ? basicQuestions : advQuestions;
+      currentQ = bank[currentLevel - 1];
+      const cust = customerList[currentLevel - 1];
+
+      // 標籤與客人
+      document.getElementById('stageTag').innerText = `${currentMode === 'basic' ? '🌱 基礎二位數' : '🚀 進階三位數'} - ${currentQ.tag}`;
+      document.getElementById('customerAvatar').innerText = cust.avatar;
+      document.getElementById('customerSpeech').innerText = cust.speech;
+
+      // 金額
+      document.getElementById('itemName').innerText = currentQ.item;
+      document.getElementById('itemPriceText').innerText = `$ ${currentQ.price} 元`;
+      document.getElementById('payAmountText').innerText = `$ ${currentQ.pay} 元`;
+      document.getElementById('targetFormula').innerText = `? 元`;
+
+      // 提示
+      const targetChange = currentQ.pay - currentQ.price;
+      document.getElementById('helpContent').innerHTML = 
+        `客人付了 <strong>${currentQ.pay}</strong> 元，商品 <strong>${currentQ.price}</strong> 元。<br>` +
+        `算式：<strong>${currentQ.pay} - ${currentQ.price} = ${targetChange}</strong> 元。<br>` +
+        `💡 找零錢幣參考：${currentQ.tip}`;
+      document.getElementById('helpBox').style.display = 'none';
+
+      clearTray();
+      updateHeader();
+    }
+
+    function toggleHelp() {
+      const box = document.getElementById('helpBox');
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function addMoney(val) {
+      soundCoin();
+      currentTray.push(val);
+      renderTray();
+    }
+
+    function handleTrayClick(e) {
+      const target = e.target.closest('.tray-item');
+      if (!target) return;
+      const index = parseInt(target.getAttribute('data-index'));
+      if (!isNaN(index)) {
+        currentTray.splice(index, 1);
+        playTone(350, 'sine', 0.08);
+        renderTray();
+      }
+    }
+
+    function clearTray() {
+      currentTray = [];
+      renderTray();
+    }
+
+    function renderTray() {
+      const container = document.getElementById('trayContainer');
+      const emptyHint = document.getElementById('emptyHint');
+      const totalText = document.getElementById('currentTrayTotal');
+
+      container.innerHTML = '';
+      let sum = 0;
+
+      if (currentTray.length === 0) {
+        container.appendChild(emptyHint);
+        emptyHint.style.display = 'block';
+      } else {
+        currentTray.forEach((val, idx) => {
+          sum += val;
+          const item = document.createElement('div');
+          item.className = 'tray-item';
+          item.setAttribute('data-index', idx);
+
+          if (val === 500) {
+            item.innerHTML = `<div class="bill-500">500</div>`;
+          } else if (val === 100) {
+            item.innerHTML = `<div class="bill-100">100</div>`;
+          } else if (val === 50) {
+            item.innerHTML = `<div class="coin-50">50</div>`;
+          } else if (val === 10) {
+            item.innerHTML = `<div class="coin-10">10</div>`;
+          } else if (val === 5) {
+            item.innerHTML = `<div class="coin-5">5</div>`;
+          } else {
+            item.innerHTML = `<div class="coin-1">1</div>`;
+          }
+
+          container.appendChild(item);
+        });
+      }
+
+      totalText.innerText = sum;
+    }
+
+    function submitChange() {
+      const userTotal = currentTray.reduce((a, b) => a + b, 0);
+      const correctChange = currentQ.pay - currentQ.price;
+
+      const modal = document.getElementById('feedbackModal');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const desc = document.getElementById('modalDesc');
+      const btn = document.getElementById('modalBtn');
+
+      if (userTotal === correctChange) {
+        score += 10;
+        updateHeader();
+
+        if (currentLevel >= totalLevels) {
+          soundFanfare();
+          const modeName = currentMode === 'basic' ? '基礎二位數' : '進階三位數';
+          icon.innerText = "🏆 榮譽金牌大店長！";
+          title.innerText = `恭喜完成【${modeName}】全 15 關！`;
+          title.style.color = "#FF6F00";
+          desc.innerHTML = `你完成了所有 15 位客人的找零挑戰！<br>獲得總分 <strong>${score} / 150</strong> 枚金幣！<br>生活數學計算實力大提升！`;
+          
+          if (currentMode === 'basic') {
+            btn.innerText = "挑戰【進階三位數】15關 🚀";
+            btn.onclick = () => {
+              modal.style.display = 'none';
+              switchGameMode('adv');
+            };
+          } else {
+            btn.innerText = "再玩一次 🔄";
+            btn.onclick = () => {
+              modal.style.display = 'none';
+              currentLevel = 1;
+              score = 0;
+              loadQuestion();
+            };
+          }
+        } else {
+          soundSuccess();
+          icon.innerText = "🌟 找零完全正確！";
+          title.innerText = `找零：${correctChange} 元 答對了！`;
+          title.style.color = "#2E7D32";
+          desc.innerText = `客人非常開心地向你道謝！已累積 ${score} 枚金幣！`;
+          btn.innerText = `進入第 ${currentLevel + 1} 關 ➡️`;
+          btn.onclick = () => {
+            modal.style.display = 'none';
+            currentLevel++;
+            loadQuestion();
+          };
+        }
+      } else {
+        soundError();
+        icon.innerText = "🤔 哎呀，金額好像不太對喔";
+        title.innerText = userTotal < correctChange ? "找的錢好像不夠呢！" : "找的錢比原本的多囉！";
+        title.style.color = "#D84315";
+        desc.innerHTML = `客人需要找 <strong>${correctChange}</strong> 元，目前盤子裡有 <strong>${userTotal}</strong> 元。<br>請再算算看或打開「💡 看解題提示」！`;
+        btn.innerText = "我再算一次 ↩️";
+        btn.onclick = () => {
+          modal.style.display = 'none';
+        };
+      }
+
+      modal.style.display = 'flex';
+    }
+
+    window.onload = () => {
+      loadQuestion();
+    };
+  </script>
+</body>
+</html>
